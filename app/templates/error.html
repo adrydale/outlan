@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+  <div class="error-box">
+    <h2 style="color:var(--color-danger-bright); margin-bottom:0.5em;">Error</h2>
+    <p style="font-size:1.1em; margin-bottom:1em;">{{ message|safe }}</p>
+    
+    {% if traceback %}
+    <div class="traceback-section">
+      <button class="traceback-toggle" onclick="toggleTraceback()">
+        <span class="toggle-text">Show Technical Details</span>
+        <span class="toggle-icon">▼</span>
+      </button>
+      <div class="traceback-content" id="traceback-content" style="display: none;">
+        <pre class="traceback-text">{{ traceback }}</pre>
+      </div>
+    </div>
+    {% endif %}
+    
+    {% if attempted and (conflict or overlapping) %}
+      <table class="conflict-table" style="width:100%; margin-bottom:1.2em; border-collapse:collapse;">
+        <tr>
+          <th>Entry</th>
+          <th>CIDR</th>
+          <th>VLAN</th>
+          <th>Name</th>
+        </tr>
+        {% if conflict %}
+        <tr>
+          <td style="font-weight:bold;">EXISTING</td>
+          <td{% if conflict.conflict_fields and conflict.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ conflict.cidr if conflict.cidr else '-' }}</td>
+          <td{% if conflict.conflict_fields and conflict.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ conflict.vlan_id if conflict.vlan_id else '-' }}</td>
+          <td{% if conflict.conflict_fields and conflict.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ conflict.name if conflict.name else '-' }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold;">ATTEMPTED ADD</td>
+          <td{% if conflict.conflict_fields and conflict.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ attempted.cidr }}</td>
+          <td{% if conflict.conflict_fields and conflict.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ attempted.vlan }}</td>
+          <td{% if conflict.conflict_fields and conflict.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ attempted.name }}</td>
+        </tr>
+        {% elif overlapping %}
+        <tr>
+          <td style="font-weight:bold;">EXISTING</td>
+          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ overlapping.cidr if overlapping.cidr else '-' }}</td>
+          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ overlapping.vlan_id if overlapping.vlan_id else '-' }}</td>
+          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ overlapping.name if overlapping.name else '-' }}</td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold;">ATTEMPTED ADD</td>
+          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ attempted.cidr }}</td>
+          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ attempted.vlan }}</td>
+          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ attempted.name }}</td>
+        </tr>
+        {% endif %}
+      </table>
+    {% endif %}
+    <a href="{{ url_for('main.index') }}" class="btn-main">Back to IPAM</a>
+  </div>
+</main>
+
+<script>
+function toggleTraceback() {
+  const content = document.getElementById('traceback-content');
+  const button = document.querySelector('.traceback-toggle');
+  const toggleText = button.querySelector('.toggle-text');
+  const toggleIcon = button.querySelector('.toggle-icon');
+  
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    toggleText.textContent = 'Hide Technical Details';
+    toggleIcon.textContent = '▲';
+  } else {
+    content.style.display = 'none';
+    toggleText.textContent = 'Show Technical Details';
+    toggleIcon.textContent = '▼';
+  }
+}
+
+
+</script>
+{% endblock %}

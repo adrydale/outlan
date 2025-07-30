@@ -1,0 +1,31 @@
+[database]
+# Database file path (can be overridden with DB_PATH env var)
+path = /app/data/ipam.db
+# Database connection timeout in seconds (can be overridden with DB_TIMEOUT env var)
+timeout = 10
+
+[display]
+# Default sort field for network tables: Network, VLAN, or Name (can be overridden with DEFAULT_SORT env var)
+# Case insensitive - will be converted to proper case
+default_sort = VLAN
+# Default theme: light, dark, or midnight (can be overridden with THEME env var)
+theme = dark
+
+[snapshots]
+# Maximum number of snapshots to keep (can be overridden with SNAPSHOT_LIMIT env var)
+limit = 200
+
+[security]
+# Flask secret key for CSRF protection and session management (can be overridden with SECRET_KEY env var)
+# Generate a random key for production use
+secret_key = your-secret-key-change-in-production
+
+[logging]
+# Log level for console output: DEBUG, INFO, WARNING, ERROR (can be overridden with LOG_LEVEL env var)
+level = INFO
+# Maximum size for access log files in MB (can be overridden with LOG_MAX_SIZE_MB env var)
+max_size_mb = 5
+# Number of rotated log files to keep (can be overridden with LOG_BACKUP_COUNT env var)
+backup_count = 5
+# Timezone for logging (can be overridden with TZ env var, default is Etc/GMT)
+timezone = Etc/GMT 

@@ -1,0 +1,32 @@
+{% extends "base_init.html" %}
+{% block content %}
+<div class="init-container">
+    <h2 style="margin-top: 0;">Database Already Exists</h2>
+    
+    <div class="init-info">
+        <h3>Outlan IPAM Database Found</h3>
+        <p>It looks like Outlan IPAM has already been initialized and contains data.</p>
+        
+        <div class="info-box">
+            <h4>What this means:</h4>
+            <ul>
+                <li>Your database file already exists and contains network blocks and subnets</li>
+                <li>All your existing data is safe and intact</li>
+                <li>You can continue using IPAM normally</li>
+            </ul>
+        </div>
+        
+        <div class="warning-box">
+            <h4>Important:</h4>
+            <p>If you want to start fresh with a new database, you'll need to manually delete the existing database file first.</p>
+            <p><strong>Database location:</strong> <code>data/ipam.db</code></p>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('main.index') }}" class="btn-main">Go to IPAM Dashboard</a>
+        <a href="{{ url_for('main.show_init') }}" class="btn-small">Back to Init Page</a>
+    </div>
+    
+</div>
+{% endblock %} 

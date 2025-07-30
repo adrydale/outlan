@@ -1,0 +1,35 @@
+{% extends "base_init.html" %}
+{% block content %}
+<div class="init-container">
+    <h2>Database Initialization</h2>
+    
+    <div class="init-info">
+        <h3>Welcome to Outlan IPAM</h3>
+        <p>It looks like this is your first time running Outlan IPAM, or the database needs to be initialized.</p>
+        
+        <h4>What will happen:</h4>
+        <ul>
+            <li>Create the database structure with all necessary tables</li>
+            <li>Set up audit logging and snapshot functionality</li>
+            <li>Initialize the system for IP address management</li>
+        </ul>
+        
+        <h4>After initialization, you'll be able to:</h4>
+        <ul>
+            <li>Create network blocks to organize your subnets</li>
+            <li>Add subnets with VLAN assignments</li>
+            <li>Track changes with automatic snapshots</li>
+            <li>View audit logs of all activities</li>
+        </ul>
+    </div>
+    
+    <form method="POST" action="{{ url_for('main.initialize') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button type="submit" class="btn-main">Initialize Database</button>
+    </form>
+    
+    <div class="init-note">
+        <p><strong>Note:</strong> This will create a new database file. If you have existing data, please ensure you have a backup before proceeding.</p>
+    </div>
+</div>
+{% endblock %}

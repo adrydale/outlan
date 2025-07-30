@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  outlan:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./config:/app/config
+    environment:
+      - FLASK_APP=app
+      - TZ=America/Chicago
+      #- DEFAULT_SORT=vlan
+      #- LOG_LEVEL=DEBUG
+      #- SNAPSHOT_LIMIT=100
+      #- LOG_MAX_SIZE_MB=10

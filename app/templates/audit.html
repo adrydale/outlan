@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Audit and Snapshots</h2>
+<div class="snapshot-summary">
+    <h3>About Snapshots</h3>
+    <p>Snapshots capture the complete state of your IPAM data at specific points in time. They are automatically created <b><u>after each action</u></b> (adding/editing/deleting subnets and blocks) and can be used to restore your data to a previous state.</p>
+    <h4>When Snapshots Are Taken:</h4>
+    <ul>
+        <li><strong>Adding a subnet</strong> - Captures the state after the new subnet is added</li>
+        <li><strong>Editing a subnet</strong> - Captures the state after subnet modifications</li>
+        <li><strong>Deleting a subnet</strong> - Captures the state after subnet removal</li>
+        <li><strong>Adding a block</strong> - Captures the state after new block creation</li>
+        <li><strong>Renaming a block</strong> - Captures the state after block name changes</li>
+        <li><strong>Restoring a snapshot</strong> - Captures the state after restoration</li>
+    </ul>
+    <h4>What Restoring Does:</h4>
+    <p>Restoring a snapshot will completely replace your current IPAM data with the exact state captured in that snapshot. This action cannot be undone, so make sure you want to restore to that specific point in time.</p>
+</div>
+<table class="audit-table">
+    <tr>
+        <th>Timestamp</th>
+        <th>Snapshot #</th>
+        <th>Action</th>
+        <th>Block</th>
+        <th>Details</th>
+        <th>Actions</th>
+    </tr>
+    {% set snapshot_ids = audit_entries | selectattr('content') | map(attribute='id') | list %}
+    {% set current_snapshot_id = snapshot_ids[0] if snapshot_ids else None %}
+    {% for entry in audit_entries %}
+    <tr>
+        <td>{{ entry['timestamp'] }}</td>
+        <td>{% if entry['content'] %}{{ entry['id'] }}{% endif %}</td>
+        <td>{{ entry['action'] }}</td>
+        <td>{{ entry['block'] }}</td>
+        <td>{{ entry['details'] }}</td>
+        <td>
+            {% if entry['content'] %}
+                {% if entry['id'] == current_snapshot_id %}
+                    <span class="current-state-label">Current</span>
+                {% else %}
+                    <form method="POST" action="{{ url_for('snapshot.restore_snapshot', snap_id=entry['id']) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn-small delete-btn">Restore</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

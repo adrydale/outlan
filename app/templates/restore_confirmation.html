@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="restore-confirmation">
+    <h2>Snapshot Restored</h2>
+    <p>The following snapshot has been restored:</p>
+    <ul>
+        <li><strong>Snapshot ID:</strong> {{ snap_id }}</li>
+        <li><strong>Description:</strong> {{ details }}</li>
+        <li><strong>Date/Time:</strong> {{ timestamp }}</li>
+    </ul>
+    <p style="text-align: center;">You will be redirected in <span id="countdown">5</span> seconds.</p>
+    <div style="margin: 2em 0; text-align: center;">
+        <a href="{{ url_for('main.index') }}" id="main-link" class="btn-main">Return to Main Page</a>
+    </div>
+</div>
+<script>
+let seconds = 5;
+const countdown = document.getElementById('countdown');
+const mainLink = document.getElementById('main-link');
+const interval = setInterval(() => {
+    seconds--;
+    countdown.textContent = seconds;
+    if (seconds <= 0) {
+        clearInterval(interval);
+        window.location.href = mainLink.href;
+    }
+}, 1000);
+</script>
+{% endblock %}

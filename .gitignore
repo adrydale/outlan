@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.pyc
+
+# SQLite database
+/data/ipam.db
+
+# Log files
+/logs/*.log
+
+# Pytest cache
+tests/.pytest_cache/
+
+# Sensitive config
+config/settings.ini
+
+# IDE/Editor files
+.vscode/
+.cursor/
+
+# General
+*.bak
+*.tmp
+*.todo*
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Outlan IPAM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Configuration Settings</h1>
+        <p>Debug information - all settings and their sources</p>
+    </div>
+
+    <div class="settings-table-container">
+        <table class="settings-table">
+            <thead>
+                <tr>
+                    <th>Setting</th>
+                    <th>Value</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for setting in settings %}
+                <tr>
+                    <td class="setting-name">{{ setting.setting }}</td>
+                    <td class="setting-value" {% if setting.has_localstorage %}id="theme-value"{% endif %}>{{ setting.value }}</td>
+                    <td class="setting-source" {% if setting.has_localstorage %}id="theme-source"{% endif %}>{{ setting.source }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.settings-table-container {
+    margin: 2rem auto;
+    max-width: 800px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.settings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.settings-table th {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    font-family: 'Courier New', monospace;
+}
+
+.settings-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+}
+
+.setting-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.setting-value {
+    color: var(--text-secondary);
+    word-break: break-all;
+}
+
+.setting-source {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .settings-table-container {
+        overflow-x: auto;
+        margin: 2rem 1rem;
+    }
+    
+    .settings-table {
+        min-width: 600px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Immediate execution to ensure it runs
+(function() {
+    // Get the actual theme from localStorage or document attribute
+    const localStorageTheme = localStorage.getItem('theme');
+    const documentTheme = document.documentElement.getAttribute('data-theme');
+    const serverTheme = '{{ theme }}';
+    
+    // Determine the actual theme being used
+    let actualTheme = localStorageTheme || documentTheme || serverTheme;
+    
+    // If no theme is set anywhere, default to server theme
+    if (!actualTheme) {
+        actualTheme = serverTheme;
+    }
+    
+    // Check if localStorage is overriding the server theme
+    const themeSourceElement = document.getElementById('theme-source');
+    const themeValueElement = document.getElementById('theme-value');
+    if (themeSourceElement && themeValueElement && localStorageTheme && localStorageTheme !== serverTheme) {
+        // Show that localStorage is overriding in the source column
+        themeSourceElement.textContent = 'LOCALSTORAGE';
+        // Show the actual localStorage value in the value column
+        themeValueElement.textContent = localStorageTheme;
+    }
+    
+    // Debug logging
+    console.log('Theme detection:', {
+        localStorage: localStorageTheme,
+        document: documentTheme,
+        server: serverTheme,
+        actual: actualTheme,
+        isOverride: localStorageTheme && localStorageTheme !== serverTheme
+    });
+})();
+</script>
+{% endblock %} 
