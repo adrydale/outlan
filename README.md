@@ -2,12 +2,16 @@
 
 A minimal IP Address Management (IPAM) system designed for small networks. Outlan IPAM provides a simple web interface for managing IP address blocks, subnets, and VLAN assignments with support for snapshots, audit logging, and data export capabilities.
 
+Outlan does not manage individual IPs nor does it provide DNS or DHCP functions. The network-centric management approach is intended to provide network segment documentation primarily for home and lab environments.
+
+Outlan was developed with the help of Cursor.
+
 **Current Version**: 0.1.1
 
 ## Features
 
 - **Network Block Management**: Organize IP addresses into logical blocks
-- **Subnet Management**: Add and manage subnets within blocks with VLAN assignments
+- **Subnet Management**: Add and manage subnets within blocks with VLAN assignments (subnets cannot overlap within a block)
 - **VLAN Support**: Assign VLAN IDs to subnets (1-4094 range) or use dash (-) for no VLAN
 - **Snapshots**: Create point-in-time backups of your IPAM data
 - **Audit Logging**: Track all changes and modifications
@@ -16,7 +20,7 @@ A minimal IP Address Management (IPAM) system designed for small networks. Outla
 - **Docker Support**: Easy deployment using Docker and Docker Compose
 - **REST API**: Programmatic access to IPAM data and operations
 
-## Docker Deployment
+## Docker Deploymen
 
 ### Quick Start
 
@@ -34,6 +38,25 @@ A minimal IP Address Management (IPAM) system designed for small networks. Outla
 3. Access the application at `http://localhost:5000`
 
 4. Initialize the database by visiting the application URL and following the setup prompts.
+
+### Basic Compose
+
+Optional environment variables included in the next section.
+
+```yaml
+---
+services:
+  outlan:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data # Must include to maintain DB across container rebuilds
+      - ./logs:/app/logs # Optional
+      - ./config:/app/config # Optional (default values can be used or you can use env vars
+    environment:
+      - FLASK_APP=app
+```
 
 ### Environment Variables
 
@@ -58,7 +81,6 @@ The following environment variables can be configured to customize the applicati
 ### Configuration File
 
 Alternatively, you can configure the application using the `/app/config/settings.ini` file. The file supports the same options as the environment variables listed above. Refer to [config/settings.ini.example](config/settings.ini.example) for an example. A `settings.ini` will be created by default if one doesn't exist.
-
 
 ### Volumes
 
