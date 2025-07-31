@@ -31,7 +31,10 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    CSRFProtect(app)
+    csrf = CSRFProtect(app)
+
+    # Exempt API routes from CSRF protection
+    csrf.exempt(api_bp)
 
     # Set version as app attribute
     app.version = get_version()

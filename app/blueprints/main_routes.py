@@ -70,6 +70,12 @@ def db_exists():
     return render_template("db_exists.html", version=current_app.version, theme=get_theme())
 
 
+@main_bp.route("/docker_health_check")
+def docker_health_check():
+    """Simple health check endpoint for Docker that doesn't require database access"""
+    return "OK", 200
+
+
 @main_bp.route("/")
 def index():
     try:
