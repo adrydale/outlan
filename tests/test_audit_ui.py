@@ -82,3 +82,44 @@ def test_audit_page_loads_successfully(client):
     # Check that the page contains expected content
     assert b"Audit and Snapshots" in response.data
     assert b"About Snapshots" in response.data
+
+
+def test_audit_mobile_layout_elements_present(app_with_db):
+    """
+    Test that the audit page has mobile layout elements.
+
+    Verifies that:
+    - Mobile audit container is present
+    - Desktop table is present (for desktop view)
+    - Both mobile and desktop layouts are available
+    - Audit entries are properly displayed in both layouts
+    """
+    from app.utils import DatabaseService
+
+    with app_with_db.test_client() as client:
+        # Create some audit entries in the temporary database
+        DatabaseService.add_change_log(
+            action="ADD_BLOCK", block="Test Block 1", details="Added test block for mobile layout test"
+        )
+        DatabaseService.add_change_log(action="ADD_SUBNET", block="Test Block 1", details="Added subnet 192.168.1.0/24")
+        DatabaseService.add_change_log(
+            action="EDIT_SUBNET", block="Test Block 1", details="Updated subnet name to 'Test Subnet'"
+        )
+
+        response = client.get("/audit")
+        assert response.status_code == 200
+
+        # Check for mobile audit container layout
+        assert b'class="mobile-audit"' in response.data
+
+        # Check for desktop table layout
+        assert b'class="audit-table"' in response.data
+        assert b"<table" in response.data
+        assert b"<th>" in response.data
+        assert b"<td>" in response.data  # Now we should have table data
+
+        # Check that audit entries are present in the response
+        assert b"Test Block 1" in response.data
+        assert b"ADD_BLOCK" in response.data
+        assert b"ADD_SUBNET" in response.data
+        assert b"EDIT_SUBNET" in response.data

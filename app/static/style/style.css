@@ -583,6 +583,11 @@ main {
     display: none; /* Hidden on mobile */
 }
 
+/* Hide audit table on mobile - show only cards */
+.audit-table {
+    display: none; /* Hidden on mobile */
+}
+
 /* Mobile-specific button styles */
 @media (max-width: 767px) {
     /* Mobile snapshot summary - collapsed by default */
@@ -989,6 +994,14 @@ main {
     
     /* Show table on desktop */
     .subnet-table {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1em;
+    }
+    
+    /* Show audit table on desktop */
+    .audit-table {
         display: table;
         width: 100%;
         border-collapse: collapse;
