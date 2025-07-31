@@ -20,9 +20,25 @@ Outlan was developed with the help of Cursor.
 - **Docker Support**: Easy deployment using Docker and Docker Compose
 - **REST API**: Programmatic access to IPAM data and operations
 
-## Docker Deploymen
+## Docker Deployment
 
-### Quick Start
+### Quick Start with GitHub Container Registry (Recommended)
+
+The easiest way to run Outlan is using the pre-built image from GitHub Container Registry:
+
+```bash
+# Pull and run the latest version
+docker run -d \
+  --name outlan \
+  -p 5000:5000 \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/config:/app/config \
+  -e TZ=America/Chicago \
+  ghcr.io/adrydale/outlan:latest
+```
+
+### Quick Start with Docker Compose
 
 1. Clone the repository:
    ```bash
@@ -38,6 +54,16 @@ Outlan was developed with the help of Cursor.
 3. Access the application at `http://localhost:5000`
 
 4. Initialize the database by visiting the application URL and following the setup prompts.
+
+### Available Docker Images
+
+The following tags are available from GitHub Container Registry:
+
+- `latest` - Latest stable release
+- `develop` - Latest development build  
+- `vX.Y.Z` - Specific version (e.g., `v0.1.16`)
+- `vX.Y` - Latest patch version for minor version (e.g., `v0.1`)
+- `vX` - Latest minor version for major version (e.g., `v0`)
 
 ### Basic Compose
 
