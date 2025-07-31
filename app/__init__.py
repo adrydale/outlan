@@ -7,7 +7,6 @@ from .blueprints.api_routes import api_bp
 from .blueprints.audit_routes import audit_bp
 from .blueprints.ipam_routes import ipam_bp
 from .blueprints.main_routes import main_bp
-from .blueprints.snapshot_routes import snapshot_bp
 from .config import get_db_path, get_secret_key
 from .models import db
 
@@ -42,6 +41,5 @@ def create_app():
     app.register_blueprint(ipam_bp)
     app.register_blueprint(audit_bp)
     app.register_blueprint(api_bp)
-    app.register_blueprint(snapshot_bp)
 
     return app

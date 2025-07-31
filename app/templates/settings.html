@@ -9,6 +9,20 @@
         <p>Debug information - all settings and their sources</p>
     </div>
 
+    <!-- Mobile Settings Cards -->
+    <div class="mobile-settings">
+        {% for setting in settings %}
+        <div class="setting-card">
+            <div class="setting-header">
+                <div class="setting-name">{{ setting.setting }}</div>
+                <div class="setting-source" {% if setting.has_localstorage %}id="mobile-theme-source"{% endif %}>{{ setting.source }}</div>
+            </div>
+            <div class="setting-value" {% if setting.has_localstorage %}id="mobile-theme-value"{% endif %}>{{ setting.value }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Desktop Settings Table -->
     <div class="settings-table-container">
         <table class="settings-table">
             <thead>
@@ -34,13 +48,70 @@
 
 {% block styles %}
 <style>
+/* Mobile Settings Cards */
+.mobile-settings {
+    display: block;
+    margin: 1rem 0;
+}
+
+.setting-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-light);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.setting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.setting-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.setting-source {
+    color: var(--color-text-muted);
+    font-size: 0.75em;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: var(--color-accent);
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.setting-value {
+    color: var(--color-text-secondary);
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
 .settings-table-container {
     margin: 2rem auto;
     max-width: 800px;
-    background: var(--card-bg);
+    background: var(--color-bg-secondary);
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: none; /* Hidden on mobile */
 }
 
 .settings-table {
@@ -51,50 +122,109 @@
 }
 
 .settings-table th {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
     padding: 12px;
     text-align: left;
     font-weight: 600;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--color-border);
     font-family: 'Courier New', monospace;
 }
 
 .settings-table td {
     padding: 12px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
     vertical-align: top;
 }
 
-.setting-name {
-    font-weight: 600;
-    color: var(--text-primary);
-    background: var(--bg-secondary);
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-}
-
-.setting-value {
-    color: var(--text-secondary);
-    word-break: break-all;
-}
-
-.setting-source {
-    color: var(--text-muted);
-    font-size: 12px;
-    text-transform: uppercase;
-    font-weight: 600;
-}
-
-@media (max-width: 768px) {
+/* Desktop Styles (768px and up) */
+@media (min-width: 768px) {
+    .mobile-settings {
+        display: none; /* Hide mobile cards on desktop */
+    }
+    
     .settings-table-container {
+        display: block; /* Show table on desktop */
         overflow-x: auto;
-        margin: 2rem 1rem;
+        margin: 2rem auto;
     }
     
     .settings-table {
         min-width: 600px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .setting-card {
+        padding: 1.25rem;
+    }
+    
+    .setting-name {
+        font-size: 1em;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .setting-source {
+        font-size: 0.8em;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .setting-value {
+        font-size: 1em;
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 767px) and (orientation: landscape) {
+    .setting-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .setting-header {
+        flex: 1;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .setting-value {
+        flex-shrink: 0;
+        max-width: 40%;
+        text-align: right;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .setting-card {
+        border: 2px solid var(--color-text-primary);
+    }
+    
+    .setting-name {
+        border: 1px solid var(--color-text-primary);
+    }
+    
+    .setting-source {
+        border: 1px solid var(--color-text-primary);
+    }
+}
+
+/* Print styles */
+@media print {
+    .mobile-settings {
+        display: block;
+    }
+    
+    .settings-table-container {
+        display: none;
+    }
+    
+    .setting-card {
+        border: 1px solid #000;
+        margin: 0.5em 0;
+        break-inside: avoid;
     }
 }
 </style>
@@ -120,11 +250,21 @@
     // Check if localStorage is overriding the server theme
     const themeSourceElement = document.getElementById('theme-source');
     const themeValueElement = document.getElementById('theme-value');
-    if (themeSourceElement && themeValueElement && localStorageTheme && localStorageTheme !== serverTheme) {
-        // Show that localStorage is overriding in the source column
-        themeSourceElement.textContent = 'LOCALSTORAGE';
-        // Show the actual localStorage value in the value column
-        themeValueElement.textContent = localStorageTheme;
+    const mobileThemeSourceElement = document.getElementById('mobile-theme-source');
+    const mobileThemeValueElement = document.getElementById('mobile-theme-value');
+    
+    if (localStorageTheme && localStorageTheme !== serverTheme) {
+        // Update desktop elements
+        if (themeSourceElement && themeValueElement) {
+            themeSourceElement.textContent = 'LOCALSTORAGE';
+            themeValueElement.textContent = localStorageTheme;
+        }
+        
+        // Update mobile elements
+        if (mobileThemeSourceElement && mobileThemeValueElement) {
+            mobileThemeSourceElement.textContent = 'LOCALSTORAGE';
+            mobileThemeValueElement.textContent = localStorageTheme;
+        }
     }
     
     // Debug logging

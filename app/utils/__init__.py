@@ -1,3 +1,4 @@
+import ipaddress
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
@@ -10,6 +11,53 @@ from app.config import get_timezone
 from app.models import ChangeLog, NetworkBlock, Subnet, db
 
 logger = logging.getLogger(__name__)
+
+
+def sort_networks_by_ip(subnets: List[Subnet]) -> List[Subnet]:
+    """Sort subnets by IP network address properly"""
+
+    def get_network_key(subnet: Subnet) -> Tuple[int, int, int]:
+        """Get sorting key for network: (block_id, network_address, prefix_length)"""
+        try:
+            network = ipaddress.IPv4Network(subnet.cidr, strict=False)
+            return (subnet.block_id, int(network.network_address), network.prefixlen)
+        except ValueError:
+            # If CIDR is invalid, sort it to the end
+            return (subnet.block_id, float("inf"), 0)
+
+    return sorted(subnets, key=get_network_key)
+
+
+def sort_networks_by_vlan_with_network(subnets: List[Subnet]) -> List[Subnet]:
+    """Sort subnets by VLAN ID first, then by IP network address"""
+
+    def get_vlan_network_key(subnet: Subnet) -> Tuple[int, Optional[int], int, int]:
+        """Get sorting key for VLAN + network: (block_id, vlan_id, network_address, prefix_length)"""
+        try:
+            network = ipaddress.IPv4Network(subnet.cidr, strict=False)
+            # Use a large number for null VLAN IDs to sort them last
+            vlan_id = subnet.vlan_id if subnet.vlan_id is not None else float("inf")
+            return (subnet.block_id, vlan_id, int(network.network_address), network.prefixlen)
+        except ValueError:
+            # If CIDR is invalid, sort it to the end
+            return (subnet.block_id, subnet.vlan_id or float("inf"), float("inf"), 0)
+
+    return sorted(subnets, key=get_vlan_network_key)
+
+
+def sort_networks_by_name_with_network(subnets: List[Subnet]) -> List[Subnet]:
+    """Sort subnets by name first, then by IP network address"""
+
+    def get_name_network_key(subnet: Subnet) -> Tuple[int, str, int, int]:
+        """Get sorting key for name + network: (block_id, name, network_address, prefix_length)"""
+        try:
+            network = ipaddress.IPv4Network(subnet.cidr, strict=False)
+            return (subnet.block_id, subnet.name.lower(), int(network.network_address), network.prefixlen)
+        except ValueError:
+            # If CIDR is invalid, sort it to the end
+            return (subnet.block_id, subnet.name.lower(), float("inf"), 0)
+
+    return sorted(subnets, key=get_name_network_key)
 
 
 class DatabaseService:
@@ -105,14 +153,17 @@ class DatabaseService:
         sort_field = get_default_sort()
 
         if sort_field == "Network":
-            # Sort by CIDR (network)
-            return Subnet.query.order_by(Subnet.block_id, Subnet.cidr).all()
+            # Get all subnets and sort by IP network properly
+            subnets = Subnet.query.all()
+            return sort_networks_by_ip(subnets)
         elif sort_field == "VLAN":
-            # Sort by VLAN ID, with null values last
-            return Subnet.query.order_by(Subnet.block_id, Subnet.vlan_id.nulls_last(), Subnet.cidr).all()
+            # Sort by VLAN ID first, then by IP network address
+            subnets = Subnet.query.all()
+            return sort_networks_by_vlan_with_network(subnets)
         elif sort_field == "Name":
-            # Sort by name
-            return Subnet.query.order_by(Subnet.block_id, Subnet.name).all()
+            # Sort by name first, then by IP network address
+            subnets = Subnet.query.all()
+            return sort_networks_by_name_with_network(subnets)
         else:
             # Default to CIDR sorting
             return Subnet.query.order_by(Subnet.block_id, Subnet.cidr).all()

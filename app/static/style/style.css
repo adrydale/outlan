@@ -22,8 +22,8 @@
   --color-text-light: #f1f5f9;
   
   /* Action Colors */
-  --color-success: #22c55e;
-  --color-success-hover: #16a34a;
+  --color-success: #10b981;
+  --color-success-hover: #059669;
   --color-warning: #ffa500;
   --color-danger: #8b2635;
   --color-danger-hover: #a83242;
@@ -74,8 +74,8 @@
   --color-text-light: #334155;
   
   /* Action Colors */
-  --color-success: #16a34a;
-  --color-success-hover: #15803d;
+  --color-success: #059669;
+  --color-success-hover: #047857;
   --color-warning: #ea580c;
   --color-danger: #e14848;
   --color-danger-hover: #dc2626;
@@ -154,14 +154,1168 @@
   --color-shadow-danger: #6e284944;
 }
 
+/* Mobile-First Responsive Design */
 body {
     background: var(--color-bg-primary);
     color: var(--color-text-primary);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
+    font-size: 16px; /* Base font size for mobile */
+    line-height: 1.5;
 }
 
+/* Mobile Navigation */
+.navbar {
+    background: var(--color-bg-quaternary);
+    color: var(--color-text-secondary);
+    padding: 0.5em 0.75em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-text-muted);
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.menu a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    margin-left: 0.75em;
+    transition: color 0.2s;
+    display: inline-block;
+    font-size: 0.85em;
+}
+
+.menu a:hover {
+    color: var(--color-text-primary);
+}
+
+/* Mobile Main Content */
+main {
+    padding: 0.5em;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Mobile Block Cards */
+.block-section {
+    background: var(--color-bg-secondary);
+    margin: 0.5em 0;
+    border-radius: 8px;
+    padding: 0.5em;
+    box-shadow: 0 2px 8px 0 var(--color-shadow-primary);
+    border: 1px solid var(--color-border-light);
+}
+
+/* Mobile Block Header */
+.block-header {
+    margin: 0.25em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+.block-title-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25em;
+}
+
+.block-title {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.block-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.0625em;
+    justify-content: flex-start;
+    margin-top: 0.25em;
+}
+
+/* ===== BUTTON SYSTEM ===== */
+
+/* Base Button Styles */
+/* Base Button Styles - Applied to all buttons */
+.btn-main, .btn-small, .delete-btn, .edit-link, .rename-btn, .save-btn, .cancel-btn, .export-btn, .move-up-btn, .move-down-btn, .collapse-btn, .current-state-btn {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25em;
+    
+    /* Sizing */
+    min-height: 36px;
+    padding: 0.5em 0.75em;
+    border-radius: 6px;
+    
+    /* Typography */
+    font-size: 0.85em;
+    font-weight: 500;
+    text-decoration: none;
+    line-height: 1;
+    
+    /* Visual */
+    border: none;
+    cursor: pointer;
+    margin: 0.125em;
+    
+    /* Interactions */
+    transition: all 0.2s ease;
+    user-select: none;
+    
+    /* Default colors */
+    background: var(--color-secondary);
+    color: var(--color-text-primary);
+}
+
+/* Icon Styles */
+.btn-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Icon-only buttons - standardized sizing */
+.btn-small:has(.btn-icon),
+.delete-btn:has(.btn-icon),
+.edit-link:has(.btn-icon),
+.rename-btn:has(.btn-icon),
+.save-btn:has(.btn-icon),
+.cancel-btn:has(.btn-icon),
+.export-btn:has(.btn-icon),
+.move-up-btn:has(.btn-icon),
+.move-down-btn:has(.btn-icon),
+.add-subnet-btn:has(.btn-icon) {
+    padding: 0.5em;
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover Effects */
+.btn-main:hover, .btn-small:hover, .delete-btn:hover, .edit-link:hover, .rename-btn:hover, .save-btn:hover, .cancel-btn:hover, .export-btn:hover, .move-up-btn:hover, .move-down-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-main:hover .btn-icon, .btn-small:hover .btn-icon, .delete-btn:hover .btn-icon, .edit-link:hover .btn-icon, .rename-btn:hover .btn-icon, .save-btn:hover .btn-icon, .cancel-btn:hover .btn-icon, .export-btn:hover .btn-icon, .move-up-btn:hover .btn-icon, .move-down-btn:hover .btn-icon {
+    transform: scale(1.1);
+}
+
+/* ===== FUNCTION-SPECIFIC STYLES ===== */
+
+/* Main Action Buttons */
+.btn-main {
+    background: var(--color-secondary);
+    color: var(--color-text-primary);
+    width: 100%;
+    max-width: 200px;
+}
+
+.btn-main:hover {
+    background: var(--color-secondary-hover);
+}
+
+/* Add Subnet Button */
+.add-subnet-btn {
+    background: var(--color-success);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-subnet-btn:hover {
+    background: var(--color-success-hover);
+    color: #ffffff;
+}
+
+/* Edit/Rename Buttons */
+.edit-link, .rename-btn {
+    background: var(--color-accent);
+    color: #ffffff;
+}
+
+.edit-link:hover, .rename-btn:hover {
+    background: var(--color-accent-hover);
+    color: #ffffff;
+}
+
+/* Save Button */
+.save-btn {
+    background: var(--color-success);
+    color: #ffffff;
+}
+
+.save-btn:hover {
+    background: var(--color-success-hover);
+    color: #ffffff;
+}
+
+/* Ensure save button icons are white for better contrast */
+.save-btn .btn-icon {
+    fill: #ffffff;
+}
+
+/* Cancel Button */
+.cancel-btn {
+    background: var(--color-secondary);
+    color: var(--color-text-primary);
+}
+
+.cancel-btn:hover {
+    background: var(--color-secondary-hover);
+}
+
+/* Export Button - Color blind accessible */
+.export-btn {
+    background: var(--color-accent);
+    color: #ffffff;
+}
+
+.export-btn:hover {
+    background: var(--color-accent-hover);
+    color: #ffffff;
+}
+
+/* Delete Button */
+.delete-btn {
+    background: var(--color-danger);
+    color: #ffffff;
+}
+
+.delete-btn:hover {
+    background: var(--color-danger-hover);
+    color: #ffffff;
+}
+
+/* Move Buttons */
+.move-up-btn, .move-down-btn {
+    background: var(--color-secondary);
+    color: var(--color-text-primary);
+}
+
+.move-up-btn:hover, .move-down-btn:hover {
+    background: var(--color-secondary-hover);
+}
+
+/* Collapse Button */
+.collapse-btn {
+    background: var(--color-secondary);
+    color: var(--color-text-primary);
+    margin-right: 0.5em;
+}
+
+.collapse-btn:hover {
+    background: var(--color-secondary-hover);
+}
+
+.collapse-icon {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+
+
+
+
+/* SVG collapse icon styling */
+.collapse-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Mobile Subnet Cards */
+.subnet-card {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-light);
+    border-radius: 6px;
+    padding: 0.5em;
+    margin: 0.25em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+.subnet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.25em;
+}
+
+.subnet-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.subnet-cidr {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 0.125em;
+    word-break: break-all;
+}
+
+.subnet-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+    font-size: 0.8em;
+    color: var(--color-text-secondary);
+}
+
+.subnet-vlan {
+    display: flex;
+    align-items: center;
+    gap: 0.125em;
+}
+
+.subnet-name {
+    font-weight: 500;
+    color: var(--color-text-light);
+}
+
+.subnet-actions {
+    display: flex;
+    gap: 0.0625em;
+    flex-wrap: wrap;
+    margin-top: 0.25em;
+}
+
+/* Mobile Form Styles */
+.subnet-form {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.5em;
+    margin: 0.25em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+.form-label {
+    font-size: 0.8em;
+    font-weight: 500;
+    color: var(--color-text-light);
+    margin-bottom: 0.125em;
+}
+
+.subnet-input {
+    width: 100%;
+    background: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.5em;
+    font-size: 0.9em;
+    box-sizing: border-box;
+}
+
+.subnet-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-hover);
+}
+
+/* Mobile Add Block Form */
+.add-block-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    padding: 0.75em;
+    background: var(--color-bg-primary);
+    border: 2px dashed var(--color-border);
+    border-radius: 8px;
+    margin: 0.5em 0;
+}
+
+.block-name-input {
+    width: 100%;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.5em;
+    font-size: 0.95em;
+    box-sizing: border-box;
+}
+
+/* Mobile Table Fallback (for larger screens) */
+.subnet-table {
+    display: none; /* Hidden on mobile */
+}
+
+/* Mobile-specific button styles */
+@media (max-width: 767px) {
+    /* Mobile snapshot summary - collapsed by default */
+    .snapshot-summary {
+        transition: all 0.3s ease;
+    }
+    
+    .snapshot-summary.mobile-collapsed {
+        max-height: 60px;
+    }
+    
+    .snapshot-summary.mobile-collapsed .snapshot-content {
+        max-height: 0;
+        opacity: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    
+    .snapshot-toggle {
+        padding: 1em 0em;
+        gap: 0.5em;
+    }
+    
+    .snapshot-toggle h3 {
+        font-size: 1.1em;
+    }
+    
+    .btn-main {
+        padding: 0.375em 0.5em;
+        font-size: 0.85em;
+        max-width: 160px;
+        min-height: 36px;
+        margin: 0.125em 0;
+    }
+    
+    /* Mobile-specific button adjustments - standardized sizing */
+    .btn-small {
+        padding: 0.5em 0.75em;
+        font-size: 0.85em;
+        min-height: 36px;
+        margin: 0.125em;
+    }
+    
+    /* Mobile icon-only buttons - consistent with desktop */
+    .btn-small:has(.btn-icon),
+    .delete-btn:has(.btn-icon),
+    .edit-link:has(.btn-icon),
+    .add-subnet-btn:has(.btn-icon) {
+        padding: 0.5em;
+        min-width: 36px;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Mobile delete button - consistent with other buttons */
+    .delete-btn {
+        padding: 0.5em 0.75em;
+        font-size: 0.85em;
+        min-height: 36px;
+        margin: 0.125em;
+    }
+    
+    /* Mobile current state button - consistent with other buttons */
+    .current-state-btn {
+        padding: 0.5em 0.75em;
+        font-size: 0.85em;
+        min-height: 36px;
+        margin: 0.125em;
+    }
+    
+    /* Mobile edit link - consistent with other icon buttons */
+    .edit-link {
+        padding: 0.5em;
+        min-width: 36px;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .block-actions {
+        gap: 0.0625em;
+    }
+    
+    .subnet-actions {
+        gap: 0.0625em;
+    }
+    
+    /* Mobile subnet card layout - vertical buttons on the right */
+    .subnet-card {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 0.5em;
+        padding: 0.75em;
+    }
+
+    .subnet-header {
+        flex: 1;
+        min-width: 0;
+        margin: 0;
+    }
+
+    .subnet-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .subnet-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25em;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .subnet-actions .btn-small {
+        width: 36px;
+        height: 36px;
+        padding: 0.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Form layout for edit mode */
+    .subnet-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        padding: 0.75em;
+        width: 100%;
+        min-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .subnet-form .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25em;
+        width: 100%;
+    }
+
+    .subnet-form .subnet-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 0.25em;
+        margin: 0;
+        justify-content: flex-end;
+    }
+
+    .subnet-form .subnet-actions .btn-small {
+        width: 36px;
+        height: 36px;
+        padding: 0.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Ensure inputs take full width */
+    .subnet-form .subnet-input {
+        width: 100%;
+        min-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+
+/* Mobile Audit Cards */
+.mobile-audit {
+    display: block;
+}
+
+.audit-card {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-light);
+    border-radius: 6px;
+    padding: 0.5em;
+    margin: 0.25em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+.audit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25em;
+    padding-bottom: 0.25em;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.audit-timestamp {
+    font-size: 0.8em;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+
+.audit-snapshot {
+    font-size: 0.75em;
+    color: #ffffff;
+    font-weight: 600;
+    background: var(--color-accent);
+    padding: 0.125em 0.375em;
+    border-radius: 3px;
+}
+
+.audit-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+}
+
+.audit-action {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.audit-block {
+    font-size: 0.8em;
+    color: var(--color-text-secondary);
+}
+
+.audit-details {
+    font-size: 0.75em;
+    color: var(--color-text-muted);
+    word-break: break-word;
+}
+
+.audit-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.25em;
+    padding-top: 0.25em;
+    border-top: 1px solid var(--color-border-light);
+}
+
+.current-state-label {
+    background: var(--color-success);
+    color: #ffffff;
+    padding: 0.125em 0.375em;
+    border-radius: 3px;
+    font-size: 0.75em;
+    font-weight: 500;
+}
+
+/* Current State Button - inherits base styles with green color */
+.current-state-btn {
+    background: var(--color-success);
+    color: #ffffff;
+    cursor: default;
+}
+
+.current-state-btn:hover {
+    background: var(--color-success);
+    color: #ffffff;
+    cursor: default;
+}
+
+/* Mobile Settings Cards */
+.mobile-settings {
+    display: block;
+    margin: 0.5em 0;
+}
+
+.setting-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-light);
+    border-radius: 6px;
+    padding: 0.75em;
+    margin: 0.25em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+.setting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25em;
+    padding-bottom: 0.25em;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.setting-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+    padding: 0.125em 0.375em;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em;
+}
+
+.setting-source {
+    color: var(--color-text-muted);
+    font-size: 0.7em;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: var(--color-accent);
+    color: #ffffff;
+    padding: 0.125em 0.375em;
+    border-radius: 3px;
+}
+
+.setting-value {
+    color: var(--color-text-secondary);
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em;
+    line-height: 1.3;
+}
+
+/* Desktop Styles (768px and up) */
+@media (min-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+    
+    main {
+        padding: 2em 10vw 4em 10vw;
+        max-width: 1024px;
+    }
+    
+    .navbar {
+        padding: 1em 2em;
+    }
+    
+    .logo {
+        font-size: 1.5em;
+    }
+    
+    .menu a {
+        margin-left: 2em;
+        font-size: 1em;
+    }
+    
+    .block-section {
+        margin: 1em 0;
+        padding: 1em;
+        border-radius: 14px;
+    }
+    
+    .block-header {
+        margin: 0.75em;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .block-title-section {
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+    
+    .block-title {
+        font-size: 1.2em;
+    }
+    
+    .block-actions {
+        margin-top: 0;
+        justify-content: flex-end;
+    }
+    
+    .btn-main {
+        width: auto;
+        max-width: none;
+        margin-left: 0.5em;
+    }
+    
+    /* Desktop-specific button adjustments for better readability */
+    .btn-small {
+        font-size: 0.85em;
+        padding: 0.5em 0.75em;
+        margin: 0.125em;
+        min-height: 36px;
+    }
+    
+    /* Desktop-specific delete button adjustments */
+    .delete-btn {
+        font-size: 0.85em;
+        padding: 0.5em 0.75em;
+        margin: 0.125em;
+        min-height: 36px;
+    }
+    
+    /* Desktop-specific current state button adjustments */
+    .current-state-btn {
+        font-size: 0.85em;
+        padding: 0.5em 0.75em;
+        margin: 0.125em;
+        min-height: 36px;
+    }
+    
+    /* Show table on desktop */
+    .subnet-table {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1em;
+    }
+    
+    .subnet-table th, .subnet-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--color-border-light);
+        text-align: left;
+    }
+    
+    /* Desktop table button styles - consistent sizing */
+    .subnet-table .btn-small,
+    .subnet-table .edit-link {
+        min-height: 36px;
+        padding: 0.5em;
+        font-size: 0.85em;
+        margin: 0.125em;
+        min-width: 36px;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Desktop table delete button - consistent with other buttons */
+    .subnet-table .delete-btn {
+        min-height: 36px;
+        padding: 0.5em 0.75em;
+        font-size: 0.85em;
+        margin: 0.125em;
+        min-width: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+
+    
+    .subnet-table th {
+        color: var(--color-text-light);
+        background: var(--color-bg-tertiary);
+        font-weight: 600;
+    }
+    
+    .subnet-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Hide mobile cards on desktop */
+    .subnet-card {
+        display: none;
+    }
+    
+    .subnet-form {
+        display: table-row;
+    }
+    
+    .form-row {
+        display: table-cell;
+        vertical-align: middle;
+    }
+    
+    .form-label {
+        display: none;
+    }
+    
+    .subnet-input {
+        width: 100px;
+        padding: 4px 7px;
+        font-size: 0.9em;
+    }
+    
+    .add-block-form {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 1em;
+        margin: 0.75em;
+    }
+    
+    .block-name-input {
+        width: 200px;
+        margin-right: 10px;
+    }
+    
+    /* Hide mobile audit cards on desktop */
+    .mobile-audit {
+        display: none;
+    }
+    
+    .audit-table {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1em;
+    }
+    
+    .audit-table th, .audit-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--color-border-light);
+        text-align: left;
+    }
+    
+    .audit-table th {
+        color: var(--color-text-light);
+        background: var(--color-bg-tertiary);
+        font-weight: 600;
+    }
+    
+    .audit-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Hide mobile settings cards on desktop */
+    .mobile-settings {
+        display: none;
+    }
+    
+    .settings-table-container {
+        display: block; /* Show table on desktop */
+        overflow-x: auto;
+        margin: 2rem auto;
+    }
+    
+    .settings-table {
+        min-width: 600px;
+    }
+}
+
+/* Large Desktop Styles (1200px and up) */
+@media (min-width: 1200px) {
+    main {
+        padding: 2em 15vw 4em 15vw;
+        max-width: 1400px;
+    }
+    
+    .block-section {
+        padding: 1.5em;
+    }
+    
+    /* Large screen button adjustments for better proportions */
+    .btn-small {
+        padding: 0.6em 0.9em;
+        font-size: 0.95em;
+    }
+    
+    /* Large screen current state button adjustments for consistency */
+    .current-state-btn {
+        padding: 0.6em 0.9em;
+        font-size: 0.95em;
+    }
+    
+    .subnet-input {
+        width: 120px;
+    }
+}
+
+/* Touch-friendly improvements for mobile devices */
+@media (max-width: 767px) and (hover: none) and (pointer: coarse) {
+    .btn-small, .delete-btn, .current-state-btn {
+        min-height: 36px; /* Maintain touch-friendly size */
+        padding: 0.5em 0.75em;
+    }
+    
+    .edit-link {
+        min-height: 32px;
+        padding: 0.375em;
+        min-width: 32px;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    
+    .btn-main {
+        min-height: 40px; /* Slightly larger for main actions */
+        padding: 0.5em 0.75em;
+    }
+    
+    .subnet-input {
+        min-height: 40px;
+        padding: 0.625em;
+    }
+    
+    .block-title {
+        font-size: 1.1em;
+        line-height: 1.3;
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 767px) and (orientation: landscape) {
+    .block-header {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .block-actions {
+        margin-top: 0;
+    }
+    
+    .subnet-card {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 0.5em;
+    }
+    
+    .subnet-info {
+        flex: 1;
+    }
+    
+    .subnet-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25em;
+        margin: 0;
+        flex-shrink: 0;
+    }
+    
+    .audit-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .audit-content {
+        flex: 1;
+    }
+    
+    .audit-actions {
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+    
+    .setting-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .setting-header {
+        flex: 1;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .setting-value {
+        flex-shrink: 0;
+        max-width: 40%;
+        text-align: right;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .block-section {
+        border: 2px solid var(--color-text-primary);
+    }
+    
+    .subnet-card {
+        border: 2px solid var(--color-text-primary);
+    }
+    
+    .audit-card {
+        border: 2px solid var(--color-text-primary);
+    }
+    
+    .setting-card {
+        border: 2px solid var(--color-text-primary);
+    }
+    
+    .btn-small, .btn-main, .delete-btn {
+        border: 2px solid var(--color-text-primary);
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar, .block-actions, .subnet-actions, .audit-actions {
+        display: none;
+    }
+    
+    .block-section {
+        break-inside: avoid;
+        border: 1px solid #000;
+        margin: 1em 0;
+    }
+    
+    .subnet-card {
+        border: 1px solid #000;
+        margin: 0.5em 0;
+    }
+    
+    .audit-card {
+        border: 1px solid #000;
+        margin: 0.5em 0;
+    }
+    
+    .mobile-settings {
+        display: block;
+    }
+    
+    .settings-table-container {
+        display: none;
+    }
+    
+    .setting-card {
+        border: 1px solid #000;
+        margin: 0.5em 0;
+        break-inside: avoid;
+    }
+}
+
+/* Rest of existing styles... */
 .navbar {
     background: var(--color-bg-quaternary);
     color: var(--color-text-secondary);
@@ -249,53 +1403,7 @@ main {
     border-bottom: none;
 }
 
-.btn-main {
-    background: var(--color-secondary);
-    color: var(--color-text-primary);
-    border: none;
-    border-radius: 6px;
-    padding: 8px 18px;
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 0.5em;
-    transition: background 0.2s;
-}
 
-.btn-main:hover, .btn-small:hover {
-    background: var(--color-secondary-hover);
-}
-
-.btn-small {
-    background: var(--color-secondary);
-    color: var(--color-text-primary);
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 0.95em;
-    font-weight: 500;
-    cursor: pointer;
-    margin-right: 0.2em;
-    transition: background 0.2s;
-}
-
-.delete-btn {
-    background: var(--color-danger);
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 0.95em;
-    font-weight: 500;
-    cursor: pointer;
-    margin-right: 0.2em;
-    transition: background 0.2s;
-}
-
-.delete-btn:hover {
-    background: var(--color-danger-hover);
-    color: #ffffff;
-}
 
 .subnet-input {
     width: 100px;
@@ -326,7 +1434,12 @@ main {
 
 .error-box a.btn-main { margin-top: 1.2em; display: inline-block; }
 
-.edit-link { text-decoration: none; }
+.edit-link { 
+    text-decoration: none; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .logo-link {
     color: var(--color-text-muted);
@@ -389,15 +1502,64 @@ main {
 .snapshot-summary {
     background: var(--color-bg-tertiary);
     border-radius: 10px;
-    padding: 1.5em 2em;
     margin-bottom: 2em;
     border-left: 4px solid var(--color-accent);
+    overflow: hidden;
 }
 
-.snapshot-summary h3 {
+.snapshot-toggle {
+    background: var(--color-bg-tertiary);
+    border: none;
+    width: 100%;
+    padding: 0em 0.5em;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5em;
+    transition: background-color 0.2s ease;
+}
+
+.snapshot-toggle:hover {
+    background: var(--color-bg-quaternary);
+}
+
+.snapshot-toggle h3 {
     color: var(--color-text-primary);
-    margin-top: 0;
-    margin-bottom: 1em;
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.snapshot-toggle .toggle-icon {
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+    color: var(--color-text-secondary);
+    width: 16px;
+    height: 16px;
+}
+
+.snapshot-toggle[aria-expanded="false"] .toggle-icon {
+    transform: none !important; /* Prevent rotation for Material Design icons */
+}
+
+.snapshot-content {
+    padding: 0 2em 1.5em 2em;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.snapshot-summary.collapsed .snapshot-content {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.snapshot-summary:not(.collapsed) .snapshot-content {
+    max-height: 1000px;
+    opacity: 1;
 }
 
 .snapshot-summary h4 {
@@ -667,50 +1829,13 @@ main {
     padding: 0.75em 0.75em 0 0.75em;
 }
 
-/* Inline editing styles */
+/* Inline editing styles - these inherit from base button styles */
 .rename-btn, .save-btn, .cancel-btn {
-    background: var(--color-secondary);
-    color: var(--color-text-primary);
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 0.95em;
-    font-weight: 500;
-    cursor: pointer;
-    margin-right: 0.2em;
-    transition: background 0.2s;
+    /* These styles are now inherited from the base button styles */
+    /* Only color overrides are needed */
 }
 
-.save-btn {
-    background: var(--color-success);
-}
-
-.save-btn:hover {
-    background: var(--color-success-hover);
-}
-
-.cancel-btn {
-    background: var(--color-secondary);
-}
-
-.cancel-btn:hover {
-    background: var(--color-secondary-hover);
-}
-
-/* Block reordering styles */
-.move-up-btn, .move-down-btn {
-    background: var(--color-secondary);
-    color: var(--color-text-primary);
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 0.95em;
-    font-weight: 500;
-    cursor: pointer;
-    margin-right: 0.2em;
-    transition: background 0.2s;
-}
-
+/* Block reordering styles - inherit from base button styles */
 .move-up-btn:disabled, .move-down-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -720,23 +1845,6 @@ main {
     display: flex;
     align-items: center;
     flex-grow: 1;
-}
-
-.collapse-btn {
-    background: var(--color-secondary);
-    color: var(--color-text-primary);
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 0.95em;
-    font-weight: 500;
-    cursor: pointer;
-    margin-right: 0.5em;
-    transition: background 0.2s;
-}
-
-.collapse-btn:hover {
-    background: var(--color-secondary-hover);
 }
 
 .error-message {

@@ -1,7 +1,7 @@
 import logging
 import os
 
-from flask import Blueprint, current_app, flash, redirect, render_template, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 
 from app.config import get_theme
 from app.models import db
@@ -105,10 +105,14 @@ def index():
             subnet_dict = subnet.to_dict()
             subnets_by_block.setdefault(subnet.block_id, []).append(subnet_dict)
 
+        # Get edit parameter from request args
+        edit_id = request.args.get("edit")
+
         return render_template(
             "ipam_main.html",
             blocks=blocks_dict,
             subnets_by_block=subnets_by_block,
+            edit_id=edit_id,
             version=current_app.version,
             theme=get_theme(),
         )
