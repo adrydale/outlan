@@ -80,13 +80,14 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build image for security scan
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: false
-        tags: outlan:security-scan
-        platforms: linux/amd64
+                - name: Build image for security scan
+              uses: docker/build-push-action@v5
+              with:
+                context: .
+                push: false
+                load: true
+                tags: outlan:security-scan
+                platforms: linux/amd64
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
