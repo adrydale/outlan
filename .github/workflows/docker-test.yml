@@ -166,6 +166,7 @@ jobs:
       with:
         context: .
         push: false
+        load: true
         tags: outlan:security-scan
         cache-from: type=gha
         cache-to: type=gha,mode=max
@@ -182,11 +183,11 @@ jobs:
         echo "Available images:"
         docker images
         echo ""
-        echo "Looking for outlan:test image..."
-        if docker images outlan:test 2>/dev/null | grep -q outlan; then
+        echo "Looking for outlan:security-scan image..."
+        if docker images outlan:security-scan 2>/dev/null | grep -q outlan; then
           echo "✅ Image found, proceeding with Trivy scan"
         else
-          echo "❌ Error: outlan:test image not found"
+          echo "❌ Error: outlan:security-scan image not found"
           echo "This might be because the build step failed"
           exit 1
         fi
@@ -195,7 +196,7 @@ jobs:
       uses: aquasecurity/trivy-action@master
       continue-on-error: true
       with:
-        image-ref: outlan:test
+        image-ref: outlan:security-scan
         format: 'sarif'
         output: 'trivy-results.sarif'
         exit-code: '0'
