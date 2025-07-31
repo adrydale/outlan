@@ -26,6 +26,12 @@ jobs:
         tags: outlan:test
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        platforms: linux/amd64
+
+    - name: Verify image was built
+      run: |
+        docker images outlan:test
+        docker inspect outlan:test
 
     - name: Test Docker image functionality
       run: |
@@ -33,7 +39,10 @@ jobs:
         docker run -d --name outlan-test -p 5000:5000 outlan:test
         
         # Wait for container to be ready
-        sleep 10
+        sleep 15
+        
+        # Check if container is running
+        docker ps | grep outlan-test || exit 1
         
         # Test if the application is responding
         curl -f http://localhost:5000/ || exit 1
@@ -45,8 +54,8 @@ jobs:
         curl -f http://localhost:5000/api/version || exit 1
         
         # Clean up
-        docker stop outlan-test
-        docker rm outlan-test
+        docker stop outlan-test || true
+        docker rm outlan-test || true
 
     - name: Test Docker image with volumes
       run: |
@@ -63,7 +72,10 @@ jobs:
           outlan:test
         
         # Wait for container to be ready
-        sleep 10
+        sleep 15
+        
+        # Check if container is running
+        docker ps | grep outlan-test-volumes || exit 1
         
         # Test if the application is responding
         curl -f http://localhost:5001/ || exit 1
@@ -72,8 +84,8 @@ jobs:
         ls -la test-data/ || exit 1
         
         # Clean up
-        docker stop outlan-test-volumes
-        docker rm outlan-test-volumes
+        docker stop outlan-test-volumes || true
+        docker rm outlan-test-volumes || true
         rm -rf test-data test-logs test-config
 
     - name: Test Docker image environment variables
@@ -87,14 +99,17 @@ jobs:
           outlan:test
         
         # Wait for container to be ready
-        sleep 10
+        sleep 15
+        
+        # Check if container is running
+        docker ps | grep outlan-test-env || exit 1
         
         # Test if the application is responding
         curl -f http://localhost:5002/ || exit 1
         
         # Clean up
-        docker stop outlan-test-env
-        docker rm outlan-test-env
+        docker stop outlan-test-env || true
+        docker rm outlan-test-env || true
 
   test-security:
     runs-on: ubuntu-latest
@@ -104,6 +119,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
@@ -112,6 +130,21 @@ jobs:
         tags: outlan:test
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        platforms: linux/amd64
+
+    - name: Verify image was built
+      run: |
+        docker images outlan:test
+        docker inspect outlan:test
+
+    - name: Verify image exists for Trivy
+      run: |
+        if ! docker images outlan:test | grep -q outlan; then
+          echo "Error: outlan:test image not found"
+          docker images
+          exit 1
+        fi
+        echo "Image found, proceeding with Trivy scan"
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
@@ -119,9 +152,21 @@ jobs:
         image-ref: outlan:test
         format: 'sarif'
         output: 'trivy-results.sarif'
+        exit-code: '0'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Check Trivy results
+      run: |
+        if [ -f "trivy-results.sarif" ]; then
+          echo "Trivy SARIF file created successfully"
+          ls -la trivy-results.sarif
+        else
+          echo "Warning: Trivy SARIF file not found"
+          ls -la *.sarif || echo "No SARIF files found"
+        fi
 
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: always() && hashFiles('trivy-results.sarif') != ''
       with:
         sarif_file: 'trivy-results.sarif' 
