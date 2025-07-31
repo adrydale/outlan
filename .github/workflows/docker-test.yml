@@ -15,6 +15,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Verify build context
+      run: |
+        echo "=== Build context files ==="
+        ls -la
+        echo ""
+        echo "=== Dockerfile contents ==="
+        cat Dockerfile
+        echo ""
+        echo "=== Requirements file ==="
+        cat requirements.txt
+        echo ""
+        echo "=== Entrypoint script ==="
+        cat entrypoint.sh
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -28,10 +42,30 @@ jobs:
         cache-to: type=gha,mode=max
         platforms: linux/amd64
 
+    - name: Debug build results
+      run: |
+        echo "=== Available Docker images ==="
+        docker images
+        echo ""
+        echo "=== Looking for outlan:test ==="
+        docker images outlan:test || echo "Image not found"
+        echo ""
+        echo "=== Docker system info ==="
+        docker system df
+        echo ""
+        echo "=== Build context ==="
+        ls -la
+
     - name: Verify image was built
       run: |
-        docker images outlan:test
-        docker inspect outlan:test
+        if docker images outlan:test | grep -q outlan; then
+          echo "✅ Image found, proceeding with tests"
+          docker inspect outlan:test
+        else
+          echo "❌ Error: outlan:test image not found"
+          echo "Build step may have failed"
+          exit 1
+        fi
 
     - name: Test Docker image functionality
       run: |
@@ -126,20 +160,21 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build Docker image
+    - name: Build Docker image for security scan
       uses: docker/build-push-action@v5
       with:
         context: .
         push: false
-        tags: outlan:test
+        tags: outlan:security-scan
         cache-from: type=gha
         cache-to: type=gha,mode=max
         platforms: linux/amd64
 
     - name: Verify image was built
       run: |
-        docker images outlan:test
-        docker inspect outlan:test
+        echo "Checking if security scan image was built..."
+        docker images outlan:security-scan
+        docker inspect outlan:security-scan
 
     - name: Verify image exists for Trivy
       run: |
