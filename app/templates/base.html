@@ -120,8 +120,8 @@
                 // Use stored preference
                 isCollapsed = storedState === 'true';
             } else {
-                // Use default based on device
-                isCollapsed = isMobile;
+                // Use default: collapsed on both desktop and mobile
+                isCollapsed = true;
             }
             
             // Apply initial state

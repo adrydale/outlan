@@ -1072,7 +1072,6 @@ main {
     }
     
     .subnet-input {
-        width: 100px;
         padding: 4px 7px;
         font-size: 0.9em;
     }
@@ -1155,10 +1154,6 @@ main {
     .current-state-btn {
         padding: 0.6em 0.9em;
         font-size: 0.95em;
-    }
-    
-    .subnet-input {
-        width: 120px;
     }
 }
 
@@ -1419,7 +1414,6 @@ main {
 
 
 .subnet-input {
-    width: 100px;
     background: var(--color-bg-primary);
     color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
