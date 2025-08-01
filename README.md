@@ -6,7 +6,7 @@ Outlan does not manage individual IPs nor does it provide DNS or DHCP functions.
 
 Outlan was developed with the help of Cursor.
 
-**Current Version**: 0.1.1
+**Current Version**: 0.1.18
 
 ## Features
 
@@ -19,6 +19,27 @@ Outlan was developed with the help of Cursor.
 - **Responsive Web Interface**: Modern, themeable interface with light/dark/midnight themes
 - **Docker Support**: Easy deployment using Docker and Docker Compose
 - **REST API**: Programmatic access to IPAM data and operations
+
+## Screenshots
+
+### Main IPAM Interface - Multiple Themes
+
+The main interface provides an intuitive way to manage network blocks and subnets. You can add new blocks, create subnets with VLAN assignments, and organize your network documentation. Outlan supports three themes: light, dark, and midnight.
+
+#### Light Theme
+![Main IPAM Interface - Light Theme](screenshots/main_interface_light.png)
+
+#### Dark Theme
+![Main IPAM Interface - Dark Theme](screenshots/main_interface_dark.png)
+
+#### Midnight Theme
+![Main IPAM Interface - Midnight Theme](screenshots/main_interface_midnight.png)
+
+### Audit and Snapshots
+
+Track all changes to your IPAM data with detailed audit logs and snapshot management for point-in-time backups.
+
+![Audit and Snapshots](screenshots/audit_page.png)
 
 ## Docker Deployment
 
@@ -61,7 +82,7 @@ The following tags are available from GitHub Container Registry:
 
 - `latest` - Latest stable release
 - `develop` - Latest development build  
-- `vX.Y.Z` - Specific version (e.g., `v0.1.16`)
+- `vX.Y.Z` - Specific version (e.g., `v0.1.18`)
 - `vX.Y` - Latest patch version for minor version (e.g., `v0.1`)
 - `vX` - Latest minor version for major version (e.g., `v0`)
 
@@ -208,6 +229,15 @@ pytest
 ```
 
 **Note**: The current test suite includes basic functionality tests. Additional comprehensive tests are planned for future releases.
+
+## Screenshot Generation
+
+To regenerate the screenshots used in this README, run:
+```bash
+./regenerate_screenshots.sh
+```
+
+This script creates a temporary database with clean test data and generates screenshots for all themes. It will install Playwright if needed and automatically clean up afterward.
 
 ## License
 
