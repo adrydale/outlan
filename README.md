@@ -94,7 +94,7 @@ Optional environment variables included in the next section.
 ---
 services:
   outlan:
-    build: .
+    image: ghcr.io/adrydale/outlan:latest
     ports:
       - "5000:5000"
     volumes:
