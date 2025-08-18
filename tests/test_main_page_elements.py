@@ -36,7 +36,6 @@ def test_main_page_has_block_elements(app_with_db):
         # Check for block action buttons
         assert b"rename-btn" in response.data
         assert b"delete-btn" in response.data
-        assert b"export-btn" in response.data
         assert b"move-up-btn" in response.data
         assert b"move-down-btn" in response.data
         assert b"collapse-btn" in response.data
@@ -64,10 +63,9 @@ def test_main_page_has_subnet_elements(app_with_db):
         assert response.status_code == 200
 
         # Check for subnet structure elements
-        assert b"subnet-card" in response.data
-        assert b"subnet-actions" in response.data
+        assert b"subnet-row" in response.data
         assert b"edit-link" in response.data
-        assert b"delete-btn" in response.data  # Changed from delete-link to delete-btn
+        assert b"delete-btn" in response.data
 
 
 def test_main_page_has_add_block_form(app_with_db):
@@ -158,7 +156,7 @@ def test_main_page_has_mobile_layout_elements(app_with_db):
         assert response.status_code == 200
 
         # Check for mobile layout elements
-        assert b"subnet-card" in response.data
-        assert b"subnet-actions" in response.data
+        assert b"mobile-subnets" in response.data
+        assert b"mobile-table" in response.data
         assert b"edit-link" in response.data
-        assert b"delete-btn" in response.data  # Changed from delete-link to delete-btn
+        assert b"delete-btn" in response.data

@@ -1,0 +1,588 @@
+/* ===== BUTTON SYSTEM ===== */
+
+/* Base Button Styles - Applied to all buttons */
+.btn-base, 
+.btn-main, 
+.btn-small, 
+.delete-btn, 
+.edit-link, 
+.rename-btn, 
+.save-btn, 
+.cancel-btn, 
+.export-btn, 
+.move-up-btn, 
+.move-down-btn, 
+.collapse-btn, 
+.current-state-btn,
+.add-subnet-btn,
+.segment-btn,
+.theme-toggle {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  
+  /* Sizing */
+  min-height: 36px;
+  padding: 0.5em 0.75em;
+  border-radius: 6px;
+  
+  /* Typography */
+  font-size: 0.85em;
+  font-weight: 500;
+  text-decoration: none;
+  line-height: 1;
+  
+  /* Visual */
+  border: none;
+  cursor: pointer;
+  margin: 0.125em;
+  box-sizing: border-box;
+  
+  /* Interactions */
+  transition: all 0.2s ease;
+  user-select: none;
+  
+  /* Default colors */
+  background: var(--color-secondary);
+  color: var(--color-text-primary);
+}
+
+/* Button Icons */
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Icon-only buttons */
+.btn-small:has(.btn-icon),
+.delete-btn:has(.btn-icon),
+.edit-link:has(.btn-icon),
+.rename-btn:has(.btn-icon),
+.save-btn:has(.btn-icon),
+.cancel-btn:has(.btn-icon),
+.move-up-btn:has(.btn-icon),
+.move-down-btn:has(.btn-icon),
+.add-subnet-btn:has(.btn-icon),
+.segment-btn:has(.btn-icon) {
+  padding: 0.5em;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+/* Specific override for segment button to ensure icon sizing */
+.segment-btn:has(.btn-icon) {
+  padding: 0.5em;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  max-height: 36px;
+}
+
+/* Base Hover Effects */
+.btn-base:hover,
+.btn-main:hover, 
+.btn-small:hover, 
+.delete-btn:hover, 
+.edit-link:hover, 
+.rename-btn:hover, 
+.save-btn:hover, 
+.cancel-btn:hover, 
+.export-btn:hover, 
+.move-up-btn:hover, 
+.move-down-btn:hover,
+.collapse-btn:hover,
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--color-secondary-hover);
+}
+
+.btn-base:hover .btn-icon,
+.btn-main:hover .btn-icon, 
+.btn-small:hover .btn-icon, 
+.delete-btn:hover .btn-icon, 
+.edit-link:hover .btn-icon, 
+.rename-btn:hover .btn-icon, 
+.save-btn:hover .btn-icon, 
+.cancel-btn:hover .btn-icon, 
+.export-btn:hover .btn-icon, 
+.move-up-btn:hover .btn-icon, 
+.move-down-btn:hover .btn-icon {
+  transform: scale(1.1);
+}
+
+/* ===== BUTTON VARIANTS ===== */
+
+/* Main Action Buttons */
+.btn-main {
+  width: 100%;
+  max-width: 200px;
+}
+
+/* Success Buttons */
+.add-subnet-btn,
+.save-btn {
+  background: var(--color-success);
+  color: #ffffff;
+}
+
+.add-subnet-btn:hover,
+.save-btn:hover {
+  background: var(--color-success-hover);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.save-btn .btn-icon {
+  fill: #ffffff;
+}
+
+/* Accent Buttons */
+.edit-link, 
+.rename-btn,
+.export-btn {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.edit-link:hover, 
+.rename-btn:hover,
+.export-btn:hover {
+  background: var(--color-accent-hover);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Danger Buttons */
+.delete-btn {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.delete-btn:hover {
+  background: var(--color-danger-hover);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Special Buttons */
+.segment-btn {
+  background: var(--color-orange);
+  color: #ffffff;
+}
+
+.segment-btn:hover {
+  background: var(--color-orange-hover);
+  color: #ffffff;
+}
+
+.current-state-btn {
+  background: var(--color-success);
+  color: #ffffff;
+  cursor: default;
+}
+
+.current-state-btn:hover {
+  background: var(--color-success);
+  color: #ffffff;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Disabled buttons */
+.move-up-btn:disabled, 
+.move-down-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== FORM COMPONENTS ===== */
+
+/* Form Inputs */
+.form-input,
+.subnet-input,
+.block-name-input,
+.container-network-input,
+.container-name-input {
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.5em;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.subnet-input:focus,
+.block-name-input:focus,
+.container-network-input:focus,
+.container-name-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-hover);
+}
+
+/* Labels */
+.form-label {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--color-text-light);
+  margin-bottom: 0.125em;
+}
+
+/* Mobile Actions */
+.mobile-row-actions {
+  position: relative;
+  display: inline-block;
+}
+
+.mobile-actions-trigger {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.25em 0.5em;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  min-height: 32px;
+  min-width: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.mobile-actions-trigger:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
+}
+
+.mobile-actions-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px var(--color-shadow-primary);
+  z-index: 1000;
+  min-width: 180px;
+  display: none;
+  margin-top: 2px;
+}
+
+.mobile-actions-menu.show {
+  display: block;
+}
+
+.mobile-action-item {
+  padding: 1em 1.25em;
+  border-bottom: 1px solid var(--color-border-light);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: var(--color-text-secondary);
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.mobile-action-item:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.mobile-action-item:last-child {
+  border-bottom: none;
+}
+
+.mobile-action-item.danger {
+  color: var(--color-danger-bright);
+}
+
+.mobile-action-item.danger:hover {
+  background: var(--color-error-bg);
+  color: var(--color-danger-bright);
+}
+
+/* Mobile action icons - override inline sizes for better touch targets */
+.mobile-action-item svg {
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 0.75em !important;
+}
+
+/* ===== LAYOUT COMPONENTS ===== */
+
+/* Cards */
+.card-base,
+.subnet-card,
+.audit-card,
+.setting-card,
+.container-card {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  padding: 0.5em;
+  margin: 0.25em 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+
+/* Headers */
+.card-header,
+.subnet-header,
+.audit-header,
+.setting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.25em;
+}
+
+/* Info Sections */
+.card-info,
+.subnet-info,
+.container-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Action Sections */
+.card-actions,
+.subnet-actions,
+.audit-actions,
+.container-actions {
+  display: flex;
+  gap: 0.0625em;
+  flex-wrap: wrap;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  background: var(--color-secondary);
+  color: var(--color-text-primary);
+  padding: 8px 12px;
+  font-size: 1em;
+  margin-left: 2em;
+  min-width: 36px;
+  height: auto;
+}
+
+.theme-icon {
+  font-size: 1.1em;
+  line-height: 1;
+  filter: grayscale(100%);
+}
+
+/* Info Button with Tooltip */
+.info-btn {
+  background: var(--color-accent);
+  color: #ffffff;
+  position: relative;
+}
+
+.info-btn:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-btn .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  text-align: left;
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  font-size: 0.85em;
+  line-height: 1.4;
+  width: 280px;
+  z-index: 1000;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.info-btn .tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-bg-tertiary);
+}
+
+.info-btn:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ===== IMPORT/EXPORT STYLES ===== */
+
+/* Cards and containers */
+.card {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  padding: 1.5em;
+  margin: 1em 0;
+}
+
+.card h3 {
+  color: var(--color-text-primary);
+  font-size: 1.2em;
+  margin: 0 0 0.75em 0;
+  font-weight: 600;
+}
+
+.card p {
+  color: var(--color-text-secondary);
+  font-size: 0.9em;
+  line-height: 1.4;
+  margin: 0 0 1em 0;
+}
+
+.card ul {
+  color: var(--color-text-secondary);
+  font-size: 0.9em;
+  line-height: 1.5;
+  padding-left: 1.2em;
+}
+
+.card li {
+  margin: 0.5em 0;
+}
+
+/* Form styles */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.form-label {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.form-label.required::after {
+  content: " *";
+  color: var(--color-danger);
+}
+
+.form-input {
+  padding: 0.75em;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: 0.9em;
+  min-height: 44px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-alpha);
+}
+
+.form-input[type="file"] {
+  cursor: pointer;
+}
+
+.form-help {
+  font-size: 0.8em;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75em;
+  justify-content: flex-start;
+  margin-top: 0.5em;
+}
+
+/* Info and warning boxes */
+.info-box {
+  background: var(--color-info-bg, rgba(54, 162, 235, 0.1));
+  border: 1px solid var(--color-info, #36A2EB);
+  border-radius: 6px;
+  padding: 1em;
+  margin: 1em 0;
+}
+
+.info-box p {
+  margin: 0 0 0.75em 0;
+  color: var(--color-text-primary);
+  font-size: 0.9em;
+}
+
+.info-box p:last-child {
+  margin-bottom: 0;
+}
+
+.warning-box {
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning);
+  border-radius: 6px;
+  padding: 1em;
+  margin: 1em 0;
+  color: var(--color-warning-text);
+}
+
+/* Import/Export button variants */
+.import-btn {
+  background: var(--color-success);
+  color: #ffffff;
+}
+
+.import-btn:hover {
+  background: var(--color-success-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-btn {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.export-btn:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

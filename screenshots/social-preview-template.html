@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 60px;
+            width: 1160px;
+            height: 520px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            max-width: 900px;
+        }
+        
+        .logo {
+            width: 180px;
+            height: 180px;
+            flex-shrink: 0;
+        }
+        
+        .text {
+            flex: 1;
+        }
+        
+        .title {
+            font-size: 72px;
+            font-weight: 700;
+            color: #1a1d26;
+            margin: 0 0 16px 0;
+            line-height: 1.1;
+        }
+        
+        .subtitle {
+            font-size: 32px;
+            font-weight: 400;
+            color: #495057;
+            margin: 0;
+            line-height: 1.3;
+        }
+        
+        .highlight {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="../app/static/img/outlan_logo_social.svg" alt="Outlan Logo" class="logo">
+        <div class="text">
+            <h1 class="title">Outlan <span class="highlight">IPAM</span></h1>
+            <p class="subtitle">IP Management for Homelabs & Small Networks</p>
+        </div>
+    </div>
+</body>
+</html>

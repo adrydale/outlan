@@ -1,3 +1,39 @@
+[project]
+name = "outlan-ipam"
+description = "Minimal IP Address Management system for homelabs and small networks"
+keywords = ["ipam", "network-management", "homelab", "flask", "docker", "vlan", "subnet-management", "rest-api", "web-interface", "self-hosted"]
+authors = [
+    {name = "Aaron Drydale", email = "adrydale.dev@gmail.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Flask",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Network Administrators",
+    "Intended Audience :: Information Technology", 
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Documentation",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/adrydale/outlan"
+Repository = "https://github.com/adrydale/outlan"
+Issues = "https://github.com/adrydale/outlan/issues"
+Documentation = "https://github.com/adrydale/outlan#readme"
+
 [tool.black]
 line-length = 120
 target-version = ['py39']

@@ -23,7 +23,7 @@ fi
 # Run the screenshot generation script
 echo "Generating screenshots..."
 cd screenshots
-python3 generate_screenshots_clean.py
+python3 generate_screenshots.py
 
 if [ $? -eq 0 ]; then
     echo "Screenshots generated successfully!"

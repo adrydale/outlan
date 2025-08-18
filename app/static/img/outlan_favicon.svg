@@ -1,0 +1,15 @@
+<svg viewBox="38 78 144 128" xmlns="http://www.w3.org/2000/svg">
+  <title>Outlan Logo</title>
+  <g stroke="#2c3e50" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="64" y="125" width="35" height="35" rx="10" ry="10"/>
+    <rect x="134" y="95" width="22" height="22" rx="7" ry="7"/>
+    <rect x="134" y="131" width="22" height="22" rx="7" ry="7"/>
+    <rect x="134" y="168" width="22" height="22" rx="7" ry="7"/>
+    <g stroke-linecap="butt">
+      <path d="m 99,142.5 h 35"/>
+      <path d="m 134,106 h -16 v 73 h 16"/>
+    </g>
+    <path d="m 118,179 v 28"/>
+    <path d="m 162,207 c 9,0 16,-6 16,-15 V 93 c 0,-9 -7,-16 -16,-16 H 58 c -9,0 -16,7 -16,16 v 98 c 0,9 7,16 16,16 h 60"/>
+  </g>
+</svg>

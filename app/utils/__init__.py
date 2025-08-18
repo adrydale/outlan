@@ -7,17 +7,34 @@ import pytz
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.config import get_timezone
-from app.models import ChangeLog, NetworkBlock, Subnet, db
+from app.config import get_default_sort, get_timezone
+from app.models import ChangeLog, NetworkBlock, NetworkContainer, Subnet, db
 
 logger = logging.getLogger(__name__)
 
 
 def sort_networks_by_ip(subnets: List[Subnet]) -> List[Subnet]:
-    """Sort subnets by IP network address properly"""
+    """Sort subnets by IP network address in ascending order.
+
+    Args:
+        subnets: List of Subnet objects to sort
+
+    Returns:
+        List[Subnet]: Subnets sorted by (block_id, network_address, prefix_length)
+
+    Note:
+        Invalid CIDR formats are sorted to the end of the list.
+    """
 
     def get_network_key(subnet: Subnet) -> Tuple[int, int, int]:
-        """Get sorting key for network: (block_id, network_address, prefix_length)"""
+        """Get sorting key for network: (block_id, network_address, prefix_length).
+
+        Args:
+            subnet: Subnet object to generate key for
+
+        Returns:
+            Tuple[int, int, int]: Sorting key tuple
+        """
         try:
             network = ipaddress.IPv4Network(subnet.cidr, strict=False)
             return (subnet.block_id, int(network.network_address), network.prefixlen)
@@ -29,10 +46,28 @@ def sort_networks_by_ip(subnets: List[Subnet]) -> List[Subnet]:
 
 
 def sort_networks_by_vlan_with_network(subnets: List[Subnet]) -> List[Subnet]:
-    """Sort subnets by VLAN ID first, then by IP network address"""
+    """Sort subnets by VLAN ID first, then by IP network address.
+
+    Args:
+        subnets: List of Subnet objects to sort
+
+    Returns:
+        List[Subnet]: Subnets sorted by (block_id, vlan_id, network_address, prefix_length)
+
+    Note:
+        Subnets with null VLAN IDs are sorted to the end.
+        Invalid CIDR formats are sorted to the end within their VLAN group.
+    """
 
     def get_vlan_network_key(subnet: Subnet) -> Tuple[int, Optional[int], int, int]:
-        """Get sorting key for VLAN + network: (block_id, vlan_id, network_address, prefix_length)"""
+        """Get sorting key for VLAN + network: (block_id, vlan_id, network_address, prefix_length).
+
+        Args:
+            subnet: Subnet object to generate key for
+
+        Returns:
+            Tuple[int, Optional[int], int, int]: Sorting key tuple
+        """
         try:
             network = ipaddress.IPv4Network(subnet.cidr, strict=False)
             # Use a large number for null VLAN IDs to sort them last
@@ -46,10 +81,28 @@ def sort_networks_by_vlan_with_network(subnets: List[Subnet]) -> List[Subnet]:
 
 
 def sort_networks_by_name_with_network(subnets: List[Subnet]) -> List[Subnet]:
-    """Sort subnets by name first, then by IP network address"""
+    """Sort subnets by name first, then by IP network address.
+
+    Args:
+        subnets: List of Subnet objects to sort
+
+    Returns:
+        List[Subnet]: Subnets sorted by (block_id, name_lowercase, network_address, prefix_length)
+
+    Note:
+        Names are compared case-insensitively.
+        Invalid CIDR formats are sorted to the end within their name group.
+    """
 
     def get_name_network_key(subnet: Subnet) -> Tuple[int, str, int, int]:
-        """Get sorting key for name + network: (block_id, name, network_address, prefix_length)"""
+        """Get sorting key for name + network: (block_id, name, network_address, prefix_length).
+
+        Args:
+            subnet: Subnet object to generate key for
+
+        Returns:
+            Tuple[int, str, int, int]: Sorting key tuple with lowercase name
+        """
         try:
             network = ipaddress.IPv4Network(subnet.cidr, strict=False)
             return (subnet.block_id, subnet.name.lower(), int(network.network_address), network.prefixlen)
@@ -61,31 +114,68 @@ def sort_networks_by_name_with_network(subnets: List[Subnet]) -> List[Subnet]:
 
 
 class DatabaseService:
-    """Service class for database operations"""
+    """Service class for database operations providing CRUD functionality for network blocks, subnets, and containers.
+
+    This class provides static methods for all database operations including:
+    - Network block management (create, read, update, delete)
+    - Subnet management with VLAN support
+    - Container management for network segmentation
+    - Change logging and snapshot functionality
+    - Data export/import for backup and restore
+    """
 
     @staticmethod
     def get_session() -> Session:
-        """Get database session"""
+        """Get current SQLAlchemy database session.
+
+        Returns:
+            Session: Active database session
+        """
         return db.session
 
     @staticmethod
     def get_all_blocks() -> List[NetworkBlock]:
-        """Get all network blocks ordered by position and name"""
+        """Get all network blocks ordered by position and name.
+
+        Returns:
+            List[NetworkBlock]: All blocks sorted by position, then name
+        """
         return NetworkBlock.query.order_by(NetworkBlock.position, NetworkBlock.name).all()
 
     @staticmethod
     def get_block_by_id(block_id: int) -> Optional[NetworkBlock]:
-        """Get network block by ID"""
-        return NetworkBlock.query.get(block_id)
+        """Get network block by ID.
+
+        Args:
+            block_id: Unique identifier for the block
+
+        Returns:
+            Optional[NetworkBlock]: Block if found, None otherwise
+        """
+        return db.session.get(NetworkBlock, block_id)
 
     @staticmethod
     def get_block_by_name(name: str) -> Optional[NetworkBlock]:
-        """Get network block by name"""
+        """Get network block by name.
+
+        Args:
+            name: Block name to search for
+
+        Returns:
+            Optional[NetworkBlock]: Block if found, None otherwise
+        """
         return NetworkBlock.query.filter_by(name=name).first()
 
     @staticmethod
     def create_block(name: str) -> Tuple[bool, Optional[NetworkBlock], str]:
-        """Create a new network block"""
+        """Create a new network block with auto-assigned position.
+
+        Args:
+            name: Name for the new block
+
+        Returns:
+            Tuple[bool, Optional[NetworkBlock], str]: (success, created_block, error_message)
+        """
         try:
             # Get max position
             max_position = db.session.query(db.func.max(NetworkBlock.position)).scalar()
@@ -94,6 +184,7 @@ class DatabaseService:
             block = NetworkBlock(name=name, position=next_position)
             db.session.add(block)
             db.session.commit()
+            db.session.refresh(block)
             return True, block, ""
         except IntegrityError:
             db.session.rollback()
@@ -107,7 +198,7 @@ class DatabaseService:
     def update_block_name(block_id: int, new_name: str) -> Tuple[bool, Optional[str], str]:
         """Update block name"""
         try:
-            block = NetworkBlock.query.get(block_id)
+            block = db.session.get(NetworkBlock, block_id)
             if not block:
                 return False, None, "Block not found"
 
@@ -132,7 +223,7 @@ class DatabaseService:
     def delete_block(block_id: int) -> Tuple[bool, str]:
         """Delete network block and its subnets"""
         try:
-            block = NetworkBlock.query.get(block_id)
+            block = db.session.get(NetworkBlock, block_id)
             if not block:
                 return False, "Block not found"
 
@@ -145,11 +236,116 @@ class DatabaseService:
             logger.error(f"Error deleting block: {str(e)}")
             return False, f"Error deleting block: {str(e)}"
 
+    # Container management methods
+    @staticmethod
+    def get_all_containers() -> List[NetworkContainer]:
+        """Get all network containers ordered by block and position"""
+        return (
+            NetworkContainer.query.join(NetworkBlock)
+            .order_by(NetworkBlock.position, NetworkContainer.position, NetworkContainer.name)
+            .all()
+        )
+
+    @staticmethod
+    def get_containers_by_block_id(block_id: int) -> List[NetworkContainer]:
+        """Get all containers for a specific block"""
+        return (
+            NetworkContainer.query.filter_by(block_id=block_id)
+            .order_by(NetworkContainer.position, NetworkContainer.name)
+            .all()
+        )
+
+    @staticmethod
+    def get_container_by_id(container_id: int) -> Optional[NetworkContainer]:
+        """Get network container by ID"""
+        return db.session.get(NetworkContainer, container_id)
+
+    @staticmethod
+    def create_container(block_id: int, name: str, base_network: str) -> Tuple[bool, Optional[NetworkContainer], str]:
+        """Create a new network container"""
+        try:
+            # Validate base network
+            try:
+                ipaddress.ip_network(base_network, strict=False)
+            except ValueError:
+                return False, None, f"Invalid base network format: {base_network}"
+
+            # Validate block exists
+            block = db.session.get(NetworkBlock, block_id)
+            if not block:
+                return False, None, "Block not found"
+
+            # Get max position for this block
+            max_position = (
+                db.session.query(db.func.max(NetworkContainer.position)).filter_by(block_id=block_id).scalar()
+            )
+            next_position = (max_position or 0) + 1
+
+            container = NetworkContainer(
+                block_id=block_id, name=name, base_network=base_network, position=next_position
+            )
+            db.session.add(container)
+            db.session.commit()
+            db.session.refresh(container)
+            return True, container, ""
+        except IntegrityError:
+            db.session.rollback()
+            return False, None, "Container creation failed - check constraints"
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error creating container: {str(e)}")
+            return False, None, f"Error creating container: {str(e)}"
+
+    @staticmethod
+    def update_container(container_id: int, name: str, base_network: str) -> Tuple[bool, str]:
+        """Update container"""
+        try:
+            # Validate base network
+            try:
+                ipaddress.ip_network(base_network, strict=False)
+            except ValueError:
+                return False, f"Invalid base network format: {base_network}"
+
+            container = db.session.get(NetworkContainer, container_id)
+            if not container:
+                return False, "Container not found"
+
+            container.name = name
+            container.base_network = base_network
+            db.session.commit()
+            return True, ""
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error updating container: {str(e)}")
+            return False, f"Error updating container: {str(e)}"
+
+    @staticmethod
+    def delete_container(container_id: int) -> Tuple[bool, str]:
+        """Delete container"""
+        try:
+            container = db.session.get(NetworkContainer, container_id)
+            if not container:
+                return False, "Container not found"
+
+            container_name = container.name
+            db.session.delete(container)
+            db.session.commit()
+            return True, container_name
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error deleting container: {str(e)}")
+            return False, f"Error deleting container: {str(e)}"
+
     @staticmethod
     def get_all_subnets() -> List[Subnet]:
-        """Get all subnets ordered by configured sort field"""
-        from app.config import get_default_sort
+        """Get all subnets ordered by configured sort field.
 
+        Returns:
+            List[Subnet]: All subnets sorted according to DEFAULT_SORT configuration
+
+        Note:
+            Sort options: 'Network' (IP address), 'VLAN' (VLAN ID then IP), 'Name' (name then IP)
+        """
         sort_field = get_default_sort()
 
         if sort_field == "Network":
@@ -171,7 +367,12 @@ class DatabaseService:
     @staticmethod
     def get_subnet_by_id(subnet_id: int) -> Optional[Subnet]:
         """Get subnet by ID"""
-        return Subnet.query.get(subnet_id)
+        return db.session.get(Subnet, subnet_id)
+
+    @staticmethod
+    def get_subnets_by_block_id(block_id: int) -> List[Subnet]:
+        """Get all subnets for a specific block"""
+        return Subnet.query.filter_by(block_id=block_id).all()
 
     @staticmethod
     def create_subnet(
@@ -182,6 +383,7 @@ class DatabaseService:
             subnet = Subnet(block_id=block_id, name=name, vlan_id=vlan_id, cidr=cidr)
             db.session.add(subnet)
             db.session.commit()
+            db.session.refresh(subnet)
             return True, subnet, ""
         except IntegrityError:
             db.session.rollback()
@@ -195,7 +397,7 @@ class DatabaseService:
     def update_subnet(subnet_id: int, name: str, vlan_id: Optional[int], cidr: str) -> Tuple[bool, str]:
         """Update subnet"""
         try:
-            subnet = Subnet.query.get(subnet_id)
+            subnet = db.session.get(Subnet, subnet_id)
             if not subnet:
                 return False, "Subnet not found"
 
@@ -213,7 +415,7 @@ class DatabaseService:
     def delete_subnet(subnet_id: int) -> Tuple[bool, str]:
         """Delete subnet"""
         try:
-            subnet = Subnet.query.get(subnet_id)
+            subnet = db.session.get(Subnet, subnet_id)
             if not subnet:
                 return False, "Subnet not found"
 
@@ -256,17 +458,33 @@ class DatabaseService:
 
     @staticmethod
     def export_all_data() -> Dict[str, Any]:
-        """Export all data for snapshots"""
+        """Export all data for snapshots and backups.
+
+        Returns:
+            Dict[str, Any]: Complete database export with blocks, containers, and subnets
+        """
         blocks = [block.to_dict() for block in DatabaseService.get_all_blocks()]
+        containers = [container.to_dict() for container in DatabaseService.get_all_containers()]
         subnets = [subnet.to_dict() for subnet in DatabaseService.get_all_subnets()]
-        return {"blocks": blocks, "subnets": subnets}
+        return {"blocks": blocks, "containers": containers, "subnets": subnets}
 
     @staticmethod
     def import_data(data: Dict[str, Any]) -> bool:
-        """Import data from snapshot"""
+        """Import data from snapshot, replacing all existing data.
+
+        Args:
+            data: Export data dictionary containing blocks, containers, and subnets
+
+        Returns:
+            bool: True if import successful, False otherwise
+
+        Warning:
+            This operation clears all existing data before importing.
+        """
         try:
             # Clear existing data
             Subnet.query.delete()
+            NetworkContainer.query.delete()
             NetworkBlock.query.delete()
 
             # Import blocks
@@ -278,6 +496,17 @@ class DatabaseService:
                     collapsed=block_data.get("collapsed", False),
                 )
                 db.session.add(block)
+
+            # Import containers
+            for container_data in data.get("containers", []):
+                container = NetworkContainer(
+                    id=container_data["id"],
+                    block_id=container_data["block_id"],
+                    name=container_data["name"],
+                    base_network=container_data["base_network"],
+                    position=container_data.get("position", 0),
+                )
+                db.session.add(container)
 
             # Import subnets
             for subnet_data in data.get("subnets", []):
@@ -299,7 +528,15 @@ class DatabaseService:
 
 
 def get_timezone_timestamp() -> datetime:
-    """Get current timestamp in configured timezone"""
+    """Get current timestamp in configured timezone.
+
+    Returns:
+        datetime: Current timestamp in the configured timezone
+
+    Note:
+        Supports both named timezones (e.g., 'America/Chicago') and UTC offsets (e.g., 'UTC-5').
+        Falls back to UTC if timezone configuration is invalid.
+    """
     timezone_str = get_timezone()
     try:
         if timezone_str.startswith("UTC"):

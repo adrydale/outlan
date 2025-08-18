@@ -59,7 +59,7 @@ theme = {DEFAULT_THEME}
 limit = {DEFAULT_SNAPSHOT_LIMIT}
 
 [security]
-# Flask secret key for CSRF protection and session management (can be overridden
+# Flask secret key for session management and flash messages (can be overridden
 # with SECRET_KEY env var)
 # Generate a random key for production use
 secret_key = {DEFAULT_SECRET_KEY}
@@ -131,23 +131,28 @@ config = Config()
 
 # Convenience functions for common settings
 def get_db_path() -> str:
+    """Get database file path from configuration."""
     return config.get("database", "path", DEFAULT_DB_PATH, "DB_PATH")
 
 
 def get_db_timeout() -> int:
+    """Get database connection timeout in seconds."""
     return config.getint("database", "timeout", DEFAULT_DB_TIMEOUT, "DB_TIMEOUT")
 
 
 def get_default_sort() -> str:
+    """Get default sort field for network tables."""
     valid_options = ["Network", "VLAN", "Name"]
     return config.get_enum("display", "default_sort", valid_options, DEFAULT_SORT_FIELD, "DEFAULT_SORT")
 
 
 def get_snapshot_limit() -> int:
+    """Get maximum number of snapshots to keep."""
     return config.getint("snapshots", "limit", DEFAULT_SNAPSHOT_LIMIT, "SNAPSHOT_LIMIT")
 
 
 def get_log_level() -> str:
+    """Get logging level configuration."""
     valid_options = ["DEBUG", "INFO", "WARNING", "ERROR"]
     return config.get_enum("logging", "level", valid_options, DEFAULT_LOG_LEVEL, "LOG_LEVEL")
 

@@ -1,0 +1,145 @@
+/* Segment Planner Styles - Uses Outlan's existing CSS variables */
+
+/* Network visualization bar segments */
+.allocation-segment {
+    position: absolute;
+    height: 100%;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.allocation-segment:hover {
+    opacity: 0.8;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.allocation-segment:last-child {
+    border-right: none;
+}
+
+/* Info box show state */
+#allocation-info-box.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+}
+
+/* Boundary lines for network visualization */
+.boundary-line {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background: var(--color-border);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.boundary-line:hover {
+    opacity: 0.7;
+    pointer-events: auto;
+}
+
+/* Better contrast for network bar in light mode */
+[data-theme="light"] .network-bar {
+    background: #ffffff !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Color palette for segments - using accessible colors that work with all themes */
+:root {
+    --segment-color-0: #0072B2;  /* Blue */
+    --segment-color-1: #E69F00;  /* Orange */
+    --segment-color-2: #009E73;  /* Green */
+    --segment-color-3: #CC79A7;  /* Pink */
+    --segment-color-4: #F0E442;  /* Yellow */
+    --segment-color-5: #D55E00;  /* Red-Orange */
+    --segment-color-6: #56B4E9;  /* Light Blue */
+    --segment-color-7: #999999;  /* Gray */
+}
+
+/* Unified segment table styling */
+.segment-subnets {
+    display: block;
+}
+
+.segment-subnets .subnets-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+.segment-subnets .subnets-table th,
+.segment-subnets .subnets-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--color-border-light);
+    text-align: left;
+}
+
+.segment-subnets .subnets-table th {
+    color: var(--color-text-light);
+    background: var(--color-bg-tertiary);
+    font-weight: 600;
+}
+
+.segment-subnets .subnets-table tr:last-child td {
+    border-bottom: none;
+}
+
+.segment-subnets .network-column {
+    font-family: monospace;
+    font-weight: bold;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767px) {
+    /* Compact mobile styling for segment table */
+    .segment-subnets .subnets-table {
+        font-size: 0.9em;
+    }
+    
+    .segment-subnets .subnets-table th,
+    .segment-subnets .subnets-table td {
+        padding: 0.5em 0.3em;
+        font-size: 0.85em;
+    }
+    
+    .segment-subnets .subnets-table th {
+        font-size: 0.8em;
+    }
+    
+    /* Network visualization mobile adjustments */
+    .segment-visualization-container {
+        margin-bottom: 15px;
+    }
+    
+    .network-bar {
+        height: 30px;
+    }
+    
+    /* Mobile-friendly info box positioning */
+    #allocation-info-box {
+        position: fixed !important;
+        bottom: 20px !important;
+        left: 10px !important;
+        right: 10px !important;
+        top: auto !important;
+        max-width: none !important;
+        min-width: auto !important;
+        transform: translateY(0) !important;
+    }
+    
+    #allocation-info-box.show {
+        transform: translateY(0) !important;
+    }
+    
+    /* Adjust network info display for mobile */
+    .network-info-display {
+        flex-direction: column !important;
+        gap: 8px !important;
+        font-size: 0.8em !important;
+    }
+}

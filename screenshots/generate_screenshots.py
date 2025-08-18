@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Screenshot generation script that uses the existing database.
-Validates database has expected data and takes screenshots.
+Screenshot generation script for Outlan IPAM.
+Generates dark mode desktop screenshots using the existing screenshot database.
 """
 
 import asyncio
@@ -21,7 +21,7 @@ def validate_database(db_path: str) -> bool:
         # Check if tables exist
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = {row[0] for row in cursor.fetchall()}
-        expected_tables = {"network_blocks", "subnets", "change_log"}
+        expected_tables = {"network_blocks", "subnets", "change_log", "network_containers"}
 
         if not expected_tables.issubset(tables):
             print(f"❌ Missing tables. Expected: {expected_tables}, Found: {tables}")
@@ -31,29 +31,28 @@ def validate_database(db_path: str) -> bool:
         cursor.execute("SELECT id, name FROM network_blocks ORDER BY position")
         blocks = cursor.fetchall()
 
-        if len(blocks) != 2:
-            print(f"❌ Expected 2 blocks, found {len(blocks)}")
+        if len(blocks) < 2:
+            print(f"❌ Expected at least 2 blocks, found {len(blocks)}")
             return False
 
         print(f"✅ Found {len(blocks)} blocks:")
         for block_id, name in blocks:
             print(f"   - {name} (ID: {block_id})")
 
-        # Check subnets for each block
-        for block_id, block_name in blocks:
-            cursor.execute("SELECT COUNT(*) FROM subnets WHERE block_id = ?", (block_id,))
-            subnet_count = cursor.fetchone()[0]
-            print(f"   - {block_name}: {subnet_count} subnets")
+        # Check for Lab networks container
+        cursor.execute("SELECT id, name FROM network_containers WHERE name LIKE '%Lab%'")
+        lab_containers = cursor.fetchall()
 
-        # Validate specific subnet counts
-        cursor.execute("SELECT block_id, COUNT(*) FROM subnets GROUP BY block_id ORDER BY block_id")
-        subnet_counts = cursor.fetchall()
+        if not lab_containers:
+            print("❌ No 'Lab networks' container found")
+            return False
 
-        expected_counts = {1: 3, 2: 2}  # Block 1 should have 3 subnets, Block 2 should have 2
-        for block_id, count in subnet_counts:
-            if count != expected_counts.get(block_id, 0):
-                print(f"❌ Block {block_id} has {count} subnets, expected {expected_counts.get(block_id, 0)}")
-                return False
+        print(f"✅ Found Lab container: {lab_containers[0][1]} (ID: {lab_containers[0][0]})")
+
+        # Check subnets exist
+        cursor.execute("SELECT COUNT(*) FROM subnets")
+        subnet_count = cursor.fetchone()[0]
+        print(f"✅ Found {subnet_count} subnets in database")
 
         print("✅ Database validation passed!")
         return True
@@ -83,10 +82,31 @@ async def wait_for_app_ready(page, max_retries: int = 30) -> bool:
     return False
 
 
-async def generate_screenshots():
-    """Generate screenshots using the existing database"""
+async def set_dark_theme(page):
+    """Set dark theme for the page"""
+    await page.evaluate(
+        """
+        localStorage.setItem('theme', 'dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        """
+    )
+    await page.wait_for_timeout(500)
 
-    # Get database path from environment or use local path
+
+async def get_lab_container_id(db_path: str) -> int:
+    """Get the ID of the Lab networks container"""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM network_containers WHERE name LIKE '%Lab%' LIMIT 1")
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result else None
+
+
+async def generate_screenshots():
+    """Generate dark mode desktop screenshots"""
+
+    # Get database path
     db_path = os.environ.get("DB_PATH", "data/ipam_screenshots.db")
 
     # Validate database
@@ -96,13 +116,19 @@ async def generate_screenshots():
         print("❌ Database validation failed!")
         return False
 
+    # Get Lab container ID for segment view
+    lab_container_id = await get_lab_container_id(db_path)
+    if not lab_container_id:
+        print("❌ Could not find Lab networks container ID")
+        return False
+
     async with async_playwright() as p:
         # Launch browser
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
 
-        # Set viewport size
-        await page.set_viewport_size({"width": 1200, "height": 800})
+        # Set desktop viewport size
+        await page.set_viewport_size({"width": 1400, "height": 900})
 
         try:
             # Wait for app to be ready
@@ -113,75 +139,85 @@ async def generate_screenshots():
 
             print("✅ Application is ready!")
 
-            # Take screenshots for each theme
-            themes = ["light", "dark", "midnight"]
-
-            for theme in themes:
-                print(f"📸 Taking screenshot for {theme} theme...")
-
-                # Navigate to main page
-                await page.goto("http://localhost:5000/")
-                await page.wait_for_load_state("networkidle")
-
-                # Set theme using JavaScript
-                await page.evaluate(
-                    f"""
-                    localStorage.setItem('theme', '{theme}');
-                    document.documentElement.setAttribute('data-theme', '{theme}');
-                """
-                )
-                await page.wait_for_timeout(1000)
-
-                # Take screenshot
-                await page.screenshot(path=f"screenshots/main_interface_{theme}.png")
-                print(f"✅ Saved: screenshots/main_interface_{theme}.png")
-
-            # Take audit page screenshot in dark mode
-            print("📸 Taking screenshot of audit page in dark mode...")
-            await page.goto("http://localhost:5000/audit")
+            # Screenshot 1: Main IPAM Interface
+            print("📸 Taking screenshot of main interface...")
+            await page.goto("http://localhost:5000/")
             await page.wait_for_load_state("networkidle")
+            await set_dark_theme(page)
+            await page.wait_for_timeout(1000)  # Allow theme to apply
 
-            # Set dark theme for audit page
-            await page.evaluate(
-                """
-                localStorage.setItem('theme', 'dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-            """
-            )
+            await page.screenshot(path="screenshots/screenshot_main_interface.png")
+            print("✅ Saved: screenshots/screenshot_main_interface.png")
+
+            # Screenshot 2: Import/Export Page
+            print("📸 Taking screenshot of import/export page...")
+            await page.goto("http://localhost:5000/import_export")
+            await page.wait_for_load_state("networkidle")
+            await set_dark_theme(page)
             await page.wait_for_timeout(1000)
 
-            # Try to collapse the "about snapshots" section
+            await page.screenshot(path="screenshots/screenshot_import_export.png")
+            print("✅ Saved: screenshots/screenshot_import_export.png")
+
+            # Screenshot 3: Audit/Logging Page
+            print("📸 Taking screenshot of audit page...")
+            await page.goto("http://localhost:5000/audit")
+            await page.wait_for_load_state("networkidle")
+            await set_dark_theme(page)
+            await page.wait_for_timeout(1000)
+
+            # Try to collapse expandable sections for cleaner view
             try:
-                snapshot_toggle = await page.query_selector("#snapshot-toggle")
-                if snapshot_toggle:
-                    print("🔽 Collapsing snapshot section...")
-                    await snapshot_toggle.click()
-                    await page.wait_for_timeout(1000)
-
-                # Also try to hide the snapshot content directly
-                snapshot_content = await page.query_selector("#snapshot-content")
-                if snapshot_content:
-                    await page.evaluate(
-                        """
-                        const content = document.getElementById('snapshot-content');
-                        if (content) {
-                            content.style.display = 'none';
-                        }
+                # Hide snapshot info section if visible
+                await page.evaluate(
                     """
-                    )
-                    await page.wait_for_timeout(500)
-
+                    const elements = document.querySelectorAll('.alert, .info-box, #snapshot-content');
+                    elements.forEach(el => {
+                        if (el && el.textContent.includes('snapshot') || el.textContent.includes('restore')) {
+                            el.style.display = 'none';
+                        }
+                    });
+                    """
+                )
+                await page.wait_for_timeout(500)
             except Exception as e:
-                print(f"⚠️ Could not collapse sections: {e}")
+                print(f"⚠️ Could not clean audit page layout: {e}")
 
-            await page.screenshot(path="screenshots/audit_page.png")
-            print("✅ Saved: screenshots/audit_page.png")
+            await page.screenshot(path="screenshots/screenshot_audit_page.png")
+            print("✅ Saved: screenshots/screenshot_audit_page.png")
+
+            # Screenshot 4: Segment View of Lab Networks Container
+            print(f"📸 Taking screenshot of Lab networks container segment view (ID: {lab_container_id})...")
+            await page.goto(f"http://localhost:5000/segment/container/{lab_container_id}")
+            await page.wait_for_load_state("networkidle")
+            await set_dark_theme(page)
+            await page.wait_for_timeout(1000)
+
+            await page.screenshot(path="screenshots/screenshot_segment_view.png")
+            print("✅ Saved: screenshots/screenshot_segment_view.png")
+
+            # Screenshot 5: Social Preview Banner
+            print("📸 Taking screenshot of social preview banner...")
+            await page.set_viewport_size({"width": 1280, "height": 640})
+
+            # Navigate to local HTML file
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            social_template_path = f"file://{current_dir}/social-preview-template.html"
+
+            await page.goto(social_template_path)
+            await page.wait_for_load_state("networkidle")
+            await page.wait_for_timeout(1000)  # Allow fonts and layout to settle
+
+            await page.screenshot(path="screenshots/social-preview-banner.png", full_page=True)
+            print("✅ Saved: screenshots/social-preview-banner.png")
 
             print("\n🎉 Screenshots completed successfully!")
             print("Generated screenshots:")
-            for theme in themes:
-                print(f"  - screenshots/main_interface_{theme}.png")
-            print("  - screenshots/audit_page.png")
+            print("  - screenshots/screenshot_main_interface.png (dark mode, 1400x900)")
+            print("  - screenshots/screenshot_import_export.png (dark mode, 1400x900)")
+            print("  - screenshots/screenshot_audit_page.png (dark mode, 1400x900)")
+            print("  - screenshots/screenshot_segment_view.png (dark mode, 1400x900)")
+            print("  - screenshots/social-preview-banner.png (1280x640, GitHub social preview)")
 
             return True
 

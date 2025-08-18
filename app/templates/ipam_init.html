@@ -24,7 +24,6 @@
     </div>
     
     <form method="POST" action="{{ url_for('main.initialize') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <button type="submit" class="btn-main">Initialize Database</button>
     </form>
     

@@ -7,6 +7,7 @@
 
 # Log files
 /logs/*.log
+test_output.log
 
 # Pytest cache
 tests/.pytest_cache/
@@ -16,7 +17,7 @@ config/settings.ini
 
 # IDE/Editor files
 .vscode/
-.cursor/
+.claude
 
 # General
 *.bak

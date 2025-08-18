@@ -8,7 +8,14 @@ logger = logging.getLogger(__name__)
 
 
 def migrate_old_database():
-    """Migrate data from old SQLite database to new SQLAlchemy models"""
+    """Migrate data from old SQLite database to new SQLAlchemy models.
+
+    This function handles migration from legacy database structures to the current
+    SQLAlchemy-based models. It preserves existing data while updating the schema.
+
+    Returns:
+        bool: True if migration successful or no migration needed, False on error
+    """
     try:
         old_db_path = get_db_path()
 
@@ -103,7 +110,14 @@ def migrate_old_database():
 
 
 def create_initial_snapshot():
-    """Create initial snapshot if no snapshots exist"""
+    """Create initial snapshot if no snapshots exist.
+
+    This creates a baseline snapshot of the database for audit/restore purposes.
+    Only creates a snapshot if none exist to avoid duplicates.
+
+    Returns:
+        bool: True if snapshot created successfully or already exists, False on error
+    """
     try:
         # Check if any snapshots exist
         existing_snapshots = ChangeLog.query.filter_by(action="SNAPSHOT").first()

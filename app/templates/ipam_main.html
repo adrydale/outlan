@@ -23,6 +23,25 @@
             </button>
             <h3 class="block-title" data-block-id="{{ block['id'] }}">{{ block['name'] }}</h3>
             <input type="text" class="block-name-edit" data-block-id="{{ block['id'] }}" value="{{ block['name'] }}" style="display: none;" minlength="1" maxlength="50"/>
+            
+            <!-- Mobile Block Actions -->
+            <div class="mobile-block-actions">
+                <button class="mobile-actions-trigger" onclick="toggleMobileMenu(this)" title="Block Actions">⋮</button>
+                <div class="mobile-actions-menu">
+                    <div class="mobile-action-item" onclick="document.querySelector('.rename-btn[data-block-id=&quot;{{ block['id'] }}&quot;]').click()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.75em;">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                        Rename Block
+                    </div>
+                    <div class="mobile-action-item danger" onclick="document.querySelector('.delete-btn[data-block-id=&quot;{{ block['id'] }}&quot;]').click()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.75em;">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                        Delete Block
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="block-actions">
             <button type="button" class="btn-small rename-btn" data-block-id="{{ block['id'] }}" title="Rename Block">
@@ -40,13 +59,6 @@
                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                 </svg>
             </button>
-            <form method="GET" action="{{ url_for('ipam.export_csv', block_id=block['id']) }}" style="display:inline;">
-                <button type="submit" class="btn-small export-btn" title="Export CSV">
-                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                    </svg>
-                </button>
-            </form>
             <button type="button" class="btn-small delete-btn" data-delete-type="block" data-block-id="{{ block['id'] }}" data-delete-name="{{ block['name']|e }}" title="Delete Block">
                 <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
@@ -66,98 +78,168 @@
     </div>
     <div class="block-content" data-block-id="{{ block['id'] }}" {% if block['collapsed'] %}style="display: none;"{% endif %}>
         
-        <!-- Mobile Card Layout -->
+
+        <!-- Mobile Compact Table Layout -->
         <div class="mobile-subnets">
-            {% if block['id'] in subnets_by_block %}
-                {% for s in subnets_by_block[block['id']] %}
-                <div class="subnet-card">
-                    {% if edit_id and s['id'] == edit_id|int %}
-                        <form method="POST" action="{{ url_for('ipam.edit_subnet', subnet_id=s['id']) }}" class="subnet-form">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <div class="form-row">
-                                <label class="form-label">Network (CIDR)</label>
-                                <input type="text" name="cidr" value="{{ s['cidr'] }}" class="subnet-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label">VLAN ID</label>
-                                <input type="number" name="vlan_id" value="{{ s['vlan_id'] }}" class="subnet-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" />
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label">Name</label>
-                                <input type="text" name="name" value="{{ s['name'] }}" class="subnet-input" required minlength="1" maxlength="50"/>
-                            </div>
-                            <div class="subnet-actions">
-                                <input type="hidden" name="block_id" value="{{ s['block_id'] }}">
-                                <button type="submit" class="btn-small save-btn" title="Save Subnet">
-                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                    </svg>
-                                </button>
-                                <button type="button" class="btn-small cancel-btn" onclick="cancelEdit()" title="Cancel Edit">
-                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </form>
-                    {% else %}
-                        <div class="subnet-header">
-                            <div class="subnet-info">
-                                <div class="subnet-cidr">{{ s['cidr'] }}</div>
-                                <div class="subnet-details">
-                                    {% if s['vlan_id'] %}
-                                        <div class="subnet-vlan">
-                                            <span>VLAN:</span>
-                                            <span>{{ s['vlan_id'] }}</span>
+            <table class="subnet-table mobile-table">
+                <thead>
+                    <tr>
+                        <th>Network</th>
+                        <th>VLAN</th>
+                        <th>Name</th>
+                        <th>⋮</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if block['id'] in hierarchical_networks_by_block %}
+                        {% for network_entry in hierarchical_networks_by_block[block['id']] %}
+                            {% if network_entry.type == 'container' %}
+                                <!-- Container row mobile -->
+                                <tr class="container-row mobile-container-row" data-container-id="{{ network_entry.container.id }}">
+                                    <td class="container-network">
+                                        <span class="expand-icon expanded" onclick="toggleContainer({{ network_entry.container.id }})">−</span>
+                                        <span style="font-family: monospace; font-weight: bold;">{{ network_entry.container.base_network }}</span>
+                                    </td>
+                                    <td></td>
+                                    <td class="container-name">
+                                        <strong>{{ network_entry.container.name }}</strong>
+                                        <span class="container-label">(Container)</span>
+                                    </td>
+                                    <td>
+                                        <div class="mobile-row-actions">
+                                            <button class="mobile-actions-trigger" onclick="toggleMobileMenu(this)" title="Container Actions">⋮</button>
+                                            <div class="mobile-actions-menu">
+                                                <div class="mobile-action-item" onclick="window.location.href='{{ url_for('segment.view_container_segment', container_id=network_entry.container.id) }}'">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+                                                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                                                    </svg>
+                                                    View Segment
+                                                </div>
+                                                <div class="mobile-action-item danger" onclick="if(confirm('Are you sure you want to delete container \'{{ network_entry.container.name|e }}\'?')) { deleteContainer({{ network_entry.container.id }}) }">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+                                                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                    </svg>
+                                                    Delete Container
+                                                </div>
+                                            </div>
                                         </div>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Container's subnets -->
+                                {% for s in network_entry.subnets %}
+                                <tr class="subnet-row container-subnet mobile-container-subnet" data-container-id="{{ network_entry.container.id }}">
+                                    {% if edit_id and s['id'] == edit_id|int %}
+                                        <!-- Edit form for container subnet -->
+                                        <td style="padding-left: 1.5em;"><input type="text" name="cidr" value="{{ s['cidr'] }}" class="subnet-input mobile-edit-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/></td>
+                                        <td><input type="number" name="vlan_id" value="{{ s['vlan_id'] }}" class="subnet-input mobile-edit-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" /></td>
+                                        <td><input type="text" name="name" value="{{ s['name'] }}" class="subnet-input mobile-edit-input" required minlength="1" maxlength="50"/></td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('ipam_subnets.edit_subnet', subnet_id=s['id']) }}" style="display: inline;">
+                                                <input type="hidden" name="block_id" value="{{ s['block_id'] }}">
+                                                <button type="submit" class="btn-small save-btn mobile-save-btn" title="Save">✓</button>
+                                                <button type="button" class="btn-small cancel-btn mobile-cancel-btn" onclick="cancelEdit()" title="Cancel">✕</button>
+                                            </form>
+                                        </td>
+                                    {% else %}
+                                        <td style="padding-left: 1.5em; font-family: monospace;">{{ s['cidr'] }}</td>
+                                        <td>{{ s['vlan_id'] or '-' }}</td>
+                                        <td>{{ s['name'] }}</td>
+                                        <td>
+                                            <div class="mobile-row-actions">
+                                                <button class="mobile-actions-trigger" onclick="toggleMobileMenu(this)" title="Subnet Actions">⋮</button>
+                                                <div class="mobile-actions-menu">
+                                                    <div class="mobile-action-item" onclick="window.location.href='{{ url_for('main.index', edit=s['id']) }}'">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+                                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                                        </svg>
+                                                        Edit
+                                                    </div>
+                                                    <div class="mobile-action-item danger" data-delete-type="subnet" data-delete-id="{{ s['id'] }}" data-delete-name="{{ s['name']|e }}" data-delete-cidr="{{ s['cidr']|e }}" data-delete-vlan="{{ s['vlan_id'] }}" data-delete-block="{{ s['block_name']|e }}" onclick="showDeleteModal('subnet', '{{ s['id'] }}', '{{ s['name']|e }}', {cidr: '{{ s['cidr']|e }}', vlan: '{{ s['vlan_id'] }}', name: '{{ s['name']|e }}', block: '{{ s['block_name']|e }}'})">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+                                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                        </svg>
+                                                        Delete
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
                                     {% endif %}
-                                    <div class="subnet-name">{{ s['name'] }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="subnet-actions">
-                            <button type="button" class="btn-small edit-link" onclick="window.location.href='{{ url_for('main.index', edit=s['id']) }}'" title="Edit Subnet">
-                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                </svg>
-                            </button>
-                            <button type="button" class="btn-small delete-btn" data-delete-type="subnet" data-delete-id="{{ s['id'] }}" data-delete-name="{{ s['name']|e }}" data-delete-cidr="{{ s['cidr']|e }}" data-delete-vlan="{{ s['vlan_id'] }}" data-delete-block="{{ s['block_name']|e }}" title="Delete Subnet">
-                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                </svg>
-                            </button>
-                        </div>
+                                </tr>
+                                {% endfor %}
+                                
+                            {% else %}
+                                <!-- Orphaned subnet row mobile -->
+                                <tr class="subnet-row mobile-subnet-row">
+                                    {% set s = network_entry.subnet %}
+                                    {% if edit_id and s['id'] == edit_id|int %}
+                                        <!-- Edit form for orphaned subnet -->
+                                        <td><input type="text" name="cidr" value="{{ s['cidr'] }}" class="subnet-input mobile-edit-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/></td>
+                                        <td><input type="number" name="vlan_id" value="{{ s['vlan_id'] }}" class="subnet-input mobile-edit-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" /></td>
+                                        <td><input type="text" name="name" value="{{ s['name'] }}" class="subnet-input mobile-edit-input" required minlength="1" maxlength="50"/></td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('ipam_subnets.edit_subnet', subnet_id=s['id']) }}" style="display: inline;">
+                                                <input type="hidden" name="block_id" value="{{ s['block_id'] }}">
+                                                <button type="submit" class="btn-small save-btn mobile-save-btn" title="Save">✓</button>
+                                                <button type="button" class="btn-small cancel-btn mobile-cancel-btn" onclick="cancelEdit()" title="Cancel">✕</button>
+                                            </form>
+                                        </td>
+                                    {% else %}
+                                        <td style="font-family: monospace;">{{ s['cidr'] }}</td>
+                                        <td>{{ s['vlan_id'] or '-' }}</td>
+                                        <td>{{ s['name'] }}</td>
+                                        <td>
+                                            <div class="mobile-row-actions">
+                                                <button class="mobile-actions-trigger" onclick="toggleMobileMenu(this)" title="Subnet Actions">⋮</button>
+                                                <div class="mobile-actions-menu">
+                                                    <div class="mobile-action-item" onclick="window.location.href='{{ url_for('main.index', edit=s['id']) }}'">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+                                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                                        </svg>
+                                                        Edit
+                                                    </div>
+                                                    <div class="mobile-action-item danger" onclick="showDeleteModal('subnet', '{{ s['id'] }}', '{{ s['name']|e }}', {cidr: '{{ s['cidr']|e }}', vlan: '{{ s['vlan_id'] }}', name: '{{ s['name']|e }}', block: '{{ s['block_name']|e }}'})">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+                                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                        </svg>
+                                                        Delete
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
-                </div>
-                {% endfor %}
-            {% endif %}
-            
-            <!-- Add new subnet card -->
-            <div class="subnet-card">
-                <form method="POST" action="{{ url_for('ipam.add_subnet') }}" class="subnet-form">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <div class="form-row">
-                        <label class="form-label">Network (CIDR)</label>
-                        <input type="text" name="cidr" placeholder="192.168.1.0/24" class="subnet-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/>
-                    </div>
-                    <div class="form-row">
-                        <label class="form-label">VLAN ID (Optional)</label>
-                        <input type="number" name="vlan_id" placeholder="100" class="subnet-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" />
-                    </div>
-                    <div class="form-row">
-                        <label class="form-label">Name</label>
-                        <input type="text" name="name" placeholder="Office Network" class="subnet-input" required minlength="1" maxlength="50"/>
-                    </div>
-                    <div class="subnet-actions">
-                        <input type="hidden" name="block_id" value="{{ block['id'] }}">
-                        <button type="submit" class="btn-small add-subnet-btn" title="Add Subnet">
-                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    
+                    <!-- Add new subnet row -->
+                    <tr class="add-subnet-row">
+                        <form method="POST" action="{{ url_for('ipam_subnets.add_subnet') }}" class="mobile-add-form">
+                            <td><input type="text" name="cidr" placeholder="192.168.1.0/24" class="subnet-input mobile-add-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/></td>
+                            <td><input type="number" name="vlan_id" placeholder="100" class="subnet-input mobile-add-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" /></td>
+                            <td><input type="text" name="name" placeholder="Network Name" class="subnet-input mobile-add-input" required minlength="1" maxlength="50"/></td>
+                            <td>
+                                <input type="hidden" name="block_id" value="{{ block['id'] }}">
+                                <button type="submit" class="btn-small add-subnet-btn mobile-add-btn" title="Add Subnet">+</button>
+                            </td>
+                        </form>
+                    </tr>
+                    
+                    <!-- Add new container row -->
+                    <tr class="add-container-row">
+                        <form method="POST" action="{{ url_for('ipam_containers.add_container_route') }}" class="mobile-add-form">
+                            <input type="hidden" name="block_id" value="{{ block['id'] }}"/>
+                            <td><input type="text" name="base_network" placeholder="10.0.0.0/16" class="subnet-input mobile-add-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format for container base network" required/></td>
+                            <td></td>
+                            <td><input type="text" name="container_name" placeholder="Container Name" class="subnet-input mobile-add-input" required minlength="1" maxlength="50"/></td>
+                            <td>
+                                <button type="submit" class="btn-small add-container-btn mobile-add-btn" title="Add Container">⊞</button>
+                            </td>
+                        </form>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Desktop Table Layout -->
@@ -168,52 +250,124 @@
                 <th>Name</th>
                 <th>Actions</th>
             </tr>
-            {% if block['id'] in subnets_by_block %}
-                {% for s in subnets_by_block[block['id']] %}
-                <tr>
-                {% if edit_id and s['id'] == edit_id|int %}
-                    <form method="POST" action="{{ url_for('ipam.edit_subnet', subnet_id=s['id']) }}" class="subnet-form">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <td><input type="text" name="cidr" value="{{ s['cidr'] }}" class="subnet-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/></td>
-                        <td><input type="number" name="vlan_id" value="{{ s['vlan_id'] }}" class="subnet-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" /></td>
-                        <td><input type="text" name="name" value="{{ s['name'] }}" class="subnet-input" required minlength="1" maxlength="50"/></td>
-                        <td>
-                            <input type="hidden" name="block_id" value="{{ s['block_id'] }}">
-                            <button type="submit" class="btn-small save-btn" title="Save Subnet">
-                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                </svg>
-                            </button>
-                            <button type="button" class="btn-small cancel-btn" onclick="cancelEdit()" title="Cancel Edit">
-                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                                </svg>
-                            </button>
-                        </td>
-                    </form>
-                {% else %}
-                    <td>{{ s['cidr'] }}</td>
-                    <td>{{ s['vlan_id'] }}</td>
-                    <td>{{ s['name'] }}</td>
-                    <td>
-                        <button type="button" class="btn-small edit-link" onclick="window.location.href='{{ url_for('main.index', edit=s['id']) }}'" title="Edit Subnet">
-                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                            </svg>
-                        </button>
-                        <button type="button" class="btn-small delete-btn" data-delete-type="subnet" data-delete-id="{{ s['id'] }}" data-delete-name="{{ s['name']|e }}" data-delete-cidr="{{ s['cidr']|e }}" data-delete-vlan="{{ s['vlan_id'] }}" data-delete-block="{{ s['block_name']|e }}" title="Delete Subnet">
-                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                            </svg>
-                        </button>
-                    </td>
-                {% endif %}
-                </tr>
+            {% if block['id'] in hierarchical_networks_by_block %}
+                {% for network_entry in hierarchical_networks_by_block[block['id']] %}
+                    {% if network_entry.type == 'container' %}
+                        <!-- Container row -->
+                        <tr class="container-row" data-container-id="{{ network_entry.container.id }}">
+                            <td class="container-network">
+                                <span class="expand-icon expanded" onclick="toggleContainer({{ network_entry.container.id }})">−</span>
+                                {{ network_entry.container.base_network }}
+                            </td>
+                            <td></td>
+                            <td class="container-name">
+                                <strong>{{ network_entry.container.name }}</strong>
+                                <span class="container-label">(Container)</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('segment.view_container_segment', container_id=network_entry.container.id) }}" class="btn-small segment-btn" title="View Segment">
+                                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                                    </svg>
+                                </a>
+                                <form method="POST" action="{{ url_for('ipam_containers.delete_container_route', container_id=network_entry.container.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete container \'{{ network_entry.container.name|e }}\'?')">
+                                            <button type="submit" class="btn-small delete-btn" title="Delete Container">
+                                        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        
+                        <!-- Container's subnets (initially hidden) -->
+                        {% for s in network_entry.subnets %}
+                        <tr class="subnet-row container-subnet" data-container-id="{{ network_entry.container.id }}">
+                            {% if edit_id and s['id'] == edit_id|int %}
+                                <form method="POST" action="{{ url_for('ipam_subnets.edit_subnet', subnet_id=s['id']) }}" class="subnet-form">
+                                            <td class="subnet-indented"><input type="text" name="cidr" value="{{ s['cidr'] }}" class="subnet-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/></td>
+                                    <td><input type="number" name="vlan_id" value="{{ s['vlan_id'] }}" class="subnet-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" /></td>
+                                    <td><input type="text" name="name" value="{{ s['name'] }}" class="subnet-input" required minlength="1" maxlength="50"/></td>
+                                    <td>
+                                        <input type="hidden" name="block_id" value="{{ s['block_id'] }}">
+                                        <button type="submit" class="btn-small save-btn" title="Save Subnet">
+                                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="btn-small cancel-btn" onclick="cancelEdit()" title="Cancel Edit">
+                                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </form>
+                            {% else %}
+                                <td class="subnet-indented">{{ s['cidr'] }}</td>
+                                <td>{{ s['vlan_id'] }}</td>
+                                <td>{{ s['name'] }}</td>
+                                <td>
+                                    <button type="button" class="btn-small edit-link" onclick="window.location.href='{{ url_for('main.index', edit=s['id']) }}'" title="Edit Subnet">
+                                        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="btn-small delete-btn" data-delete-type="subnet" data-delete-id="{{ s['id'] }}" data-delete-name="{{ s['name']|e }}" data-delete-cidr="{{ s['cidr']|e }}" data-delete-vlan="{{ s['vlan_id'] }}" data-delete-block="{{ s['block_name']|e }}" title="Delete Subnet">
+                                        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        
+                    {% else %}
+                        <!-- Orphaned subnet row -->
+                        <tr class="subnet-row">
+                            {% set s = network_entry.subnet %}
+                            {% if edit_id and s['id'] == edit_id|int %}
+                                <form method="POST" action="{{ url_for('ipam_subnets.edit_subnet', subnet_id=s['id']) }}" class="subnet-form">
+                                            <td><input type="text" name="cidr" value="{{ s['cidr'] }}" class="subnet-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/></td>
+                                    <td><input type="number" name="vlan_id" value="{{ s['vlan_id'] }}" class="subnet-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" /></td>
+                                    <td><input type="text" name="name" value="{{ s['name'] }}" class="subnet-input" required minlength="1" maxlength="50"/></td>
+                                    <td>
+                                        <input type="hidden" name="block_id" value="{{ s['block_id'] }}">
+                                        <button type="submit" class="btn-small save-btn" title="Save Subnet">
+                                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="btn-small cancel-btn" onclick="cancelEdit()" title="Cancel Edit">
+                                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </form>
+                            {% else %}
+                                <td>{{ s['cidr'] }}</td>
+                                <td>{{ s['vlan_id'] }}</td>
+                                <td>{{ s['name'] }}</td>
+                                <td>
+                                    <button type="button" class="btn-small edit-link" onclick="window.location.href='{{ url_for('main.index', edit=s['id']) }}'" title="Edit Subnet">
+                                        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="btn-small delete-btn" data-delete-type="subnet" data-delete-id="{{ s['id'] }}" data-delete-name="{{ s['name']|e }}" data-delete-cidr="{{ s['cidr']|e }}" data-delete-vlan="{{ s['vlan_id'] }}" data-delete-block="{{ s['block_name']|e }}" title="Delete Subnet">
+                                        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
             <tr>
-                <form method="POST" action="{{ url_for('ipam.add_subnet') }}" class="subnet-form">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <form method="POST" action="{{ url_for('ipam_subnets.add_subnet') }}" class="subnet-form">
                     <td><input type="text" name="cidr" placeholder="Network" class="subnet-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format (e.g., 192.168.1.0/24)" required/></td>
                     <td><input type="number" name="vlan_id" placeholder="VLAN" class="subnet-input" min="1" max="4094" title="VLAN ID must be between 1 and 4094 (optional)" /></td>
                     <td><input type="text" name="name" placeholder="Name" class="subnet-input" required minlength="1" maxlength="50"/></td>
@@ -227,14 +381,35 @@
                     </td>
                 </form>
             </tr>
+            <tr>
+                <form method="POST" action="{{ url_for('ipam_containers.add_container_route') }}" class="subnet-form">
+                    <input type="hidden" name="block_id" value="{{ block['id'] }}"/>
+                    <td><input type="text" name="base_network" placeholder="Container Network (e.g., 10.0.0.0/16)" class="subnet-input" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$" title="Enter valid CIDR format for container base network" required/></td>
+                    <td></td>
+                    <td><input type="text" name="container_name" placeholder="Container Name" class="subnet-input" required minlength="1" maxlength="50"/></td>
+                    <td>
+                        <button type="submit" class="btn-small add-container-btn" title="Add Container">
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="btn-small info-btn" title="What is a Container Network?">
+                            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                            <span class="tooltip">A container network is a large IP address range (like 192.168.0.0/16) that groups related subnets together. It helps organize your networks and enables subnet planning within that address space.</span>
+                        </button>
+                    </td>
+                </form>
+            </tr>
         </table>
     </div>
+    
 </div>
 {% endfor %}
 
 <div class="block-section">
-    <form method="POST" action="{{ url_for('ipam.add_block_route') }}" class="add-block-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <form method="POST" action="{{ url_for('ipam_blocks.add_block_route') }}" class="add-block-form">
         <div class="form-row">
             <label class="form-label">New Block Name</label>
             <input type="text" name="block_name" placeholder="Enter block name..." class="block-name-input" required minlength="1" maxlength="50"/>
@@ -270,531 +445,12 @@
     </div>
 </div>
 
-<script>
-// Real-time validation for CIDR format
-document.querySelectorAll('input[name="cidr"]').forEach(function(input) {
-    // Prevent invalid characters (only allow numbers, periods, and forward slash)
-    input.addEventListener('keypress', function(e) {
-        const char = String.fromCharCode(e.which);
-        if (!/[\d\.\/]/.test(char) && e.which !== 8 && e.which !== 9 && e.which !== 37 && e.which !== 39) {
-            e.preventDefault();
-        }
-    });
-    
-    // Handle paste events to filter invalid content
-    input.addEventListener('paste', function(e) {
-        e.preventDefault();
-        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-        const validChars = pastedText.replace(/[^\d\.\/]/g, '');
-        if (validChars) {
-            this.value = validChars;
-        }
-    });
-    
-    // Real-time validation and cleaning
-    input.addEventListener('input', function() {
-        // Remove any invalid characters (keep only numbers, periods, and forward slash)
-        this.value = this.value.replace(/[^\d\.\/]/g, '');
-        
-        const cidrPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$/;
-        if (this.value && !cidrPattern.test(this.value)) {
-            this.setCustomValidity('Please enter a valid CIDR format (e.g., 192.168.1.0/24)');
-            this.style.borderColor = '#ef4444';
-        } else {
-            this.setCustomValidity('');
-            this.style.borderColor = '';
-        }
-    });
-    
-    // Clear validation on blur if empty
-    input.addEventListener('blur', function() {
-        if (!this.value) {
-            this.setCustomValidity('');
-            this.style.borderColor = '';
-        }
-    });
-});
-
-// Real-time validation for VLAN ID
-document.querySelectorAll('input[name="vlan_id"]').forEach(function(input) {
-    // Prevent non-numeric input
-    input.addEventListener('keypress', function(e) {
-        const char = String.fromCharCode(e.which);
-        if (!/[\d]/.test(char) && e.which !== 8 && e.which !== 9 && e.which !== 37 && e.which !== 39) {
-            e.preventDefault();
-        }
-    });
-    
-    // Handle paste events to filter non-numeric content
-    input.addEventListener('paste', function(e) {
-        e.preventDefault();
-        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-        const numericOnly = pastedText.replace(/[^\d]/g, '');
-        if (numericOnly) {
-            this.value = numericOnly;
-        }
-    });
-    
-    // Real-time validation
-    input.addEventListener('input', function() {
-        // Remove any non-numeric characters
-        this.value = this.value.replace(/[^\d]/g, '');
-        
-        const vlan = parseInt(this.value);
-        if (this.value && (vlan < 1 || vlan > 4094)) {
-            this.setCustomValidity('VLAN ID must be between 1 and 4094');
-            this.style.borderColor = '#ef4444';
-        } else {
-            this.setCustomValidity('');
-            this.style.borderColor = '';
-        }
-    });
-    
-    // Clear validation on blur if empty
-    input.addEventListener('blur', function() {
-        if (!this.value) {
-            this.setCustomValidity('');
-            this.style.borderColor = '';
-        }
-    });
-});
-
-// Form submission with success feedback
-document.querySelectorAll('.subnet-form').forEach(function(form) {
-    form.addEventListener('submit', function(e) {
-        if (!this.checkValidity()) {
-            e.preventDefault();
-            return false;
-        }
-    });
-});
-
-// Cancel edit function
-function cancelEdit() {
-    window.location.href = '{{ url_for("main.index") }}';
-}
-
-// Initialize page functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize block collapse states
-    initializeBlockCollapse();
-    
-    // Initialize inline editing
-    initializeInlineEditing();
-    
-    // Initialize block reordering
-    initializeBlockReordering();
-});
-
-// Block collapse functionality
-function initializeBlockCollapse() {
-    // Set initial collapse states
-    document.querySelectorAll('.block-section').forEach(function(blockSection) {
-        const blockId = blockSection.dataset.blockId;
-        const collapsed = blockSection.dataset.collapsed === '1';
-        const content = blockSection.querySelector('.block-content');
-        const collapseIcon = blockSection.querySelector('.collapse-icon');
-        
-        if (collapsed) {
-            content.style.display = 'none';
-            collapseIcon.innerHTML = '<path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/>';
-        }
-    });
-    
-    // Add collapse button event listeners
-    document.querySelectorAll('.collapse-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const blockId = this.dataset.blockId;
-            const blockSection = document.querySelector(`[data-block-id="${blockId}"]`);
-            const content = blockSection.querySelector('.block-content');
-            const collapseIcon = this.querySelector('.collapse-icon');
-            const isCollapsed = content.style.display === 'none';
-            
-            // Toggle display
-            content.style.display = isCollapsed ? 'block' : 'none';
-            collapseIcon.innerHTML = isCollapsed ? '<path d="M19 13H5v-2h14v2z"/>' : '<path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/>';
-            
-            // Update database
-            fetch(`/api/toggle_collapse/${blockId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                }
-            }).catch(error => {
-                console.error('Error toggling collapse:', error);
-            });
-        });
-    });
-}
-
-// Inline editing functionality
-function initializeInlineEditing() {
-    // Add rename button event listeners
-    document.querySelectorAll('.rename-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const blockId = this.dataset.blockId;
-            const blockSection = document.querySelector(`[data-block-id="${blockId}"]`);
-            const title = blockSection.querySelector('.block-title');
-            const editInput = blockSection.querySelector('.block-name-edit');
-            const saveBtn = blockSection.querySelector('.save-btn');
-            const cancelBtn = blockSection.querySelector('.cancel-btn');
-            const renameBtn = this;
-            
-            // Show edit mode
-            title.style.display = 'none';
-            editInput.style.display = 'inline-block';
-            saveBtn.style.display = 'inline-block';
-            cancelBtn.style.display = 'inline-block';
-            renameBtn.style.display = 'none';
-            
-            // Focus on input
-            editInput.focus();
-            editInput.select();
-        });
-    });
-    
-    // Add save button event listeners
-    document.querySelectorAll('.save-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const blockId = this.dataset.blockId;
-            const blockSection = document.querySelector(`[data-block-id="${blockId}"]`);
-            const title = blockSection.querySelector('.block-title');
-            const editInput = blockSection.querySelector('.block-name-edit');
-            const saveBtn = this;
-            const cancelBtn = blockSection.querySelector('.cancel-btn');
-            const renameBtn = blockSection.querySelector('.rename-btn');
-            
-            const newName = editInput.value.trim();
-            if (newName.length === 0) {
-                alert('Block name cannot be empty');
-                return;
-            }
-            
-            // Update via AJAX
-            fetch(`/rename_block/${blockId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `new_block_name=${encodeURIComponent(newName)}&csrf_token=${getCsrfToken()}`
-            }).then(response => {
-                if (response.ok) {
-                    // Update title and exit edit mode
-                    title.textContent = newName;
-                    exitEditMode(blockSection);
-                } else {
-                    alert('Error saving block name');
-                }
-            }).catch(error => {
-                console.error('Error saving:', error);
-                alert('Error saving block name');
-            });
-        });
-    });
-    
-    // Add cancel button event listeners
-    document.querySelectorAll('.cancel-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const blockId = this.dataset.blockId;
-            const blockSection = document.querySelector(`[data-block-id="${blockId}"]`);
-            const editInput = blockSection.querySelector('.block-name-edit');
-            
-            // Restore original value
-            const title = blockSection.querySelector('.block-title');
-            editInput.value = title.textContent;
-            
-            exitEditMode(blockSection);
-        });
-    });
-    
-    // Add enter key support for edit input
-    document.querySelectorAll('.block-name-edit').forEach(function(input) {
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const blockId = this.dataset.blockId;
-                const blockSection = document.querySelector(`[data-block-id="${blockId}"]`);
-                const saveBtn = blockSection.querySelector('.save-btn');
-                saveBtn.click();
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                const blockId = this.dataset.blockId;
-                const blockSection = document.querySelector(`[data-block-id="${blockId}"]`);
-                const cancelBtn = blockSection.querySelector('.cancel-btn');
-                cancelBtn.click();
-            }
-        });
-    });
-}
-
-function exitEditMode(blockSection) {
-    const title = blockSection.querySelector('.block-title');
-    const editInput = blockSection.querySelector('.block-name-edit');
-    const saveBtn = blockSection.querySelector('.save-btn');
-    const cancelBtn = blockSection.querySelector('.cancel-btn');
-    const renameBtn = blockSection.querySelector('.rename-btn');
-    
-    // Hide edit mode
-    title.style.display = 'inline-block';
-    editInput.style.display = 'none';
-    saveBtn.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    renameBtn.style.display = 'inline-block';
-}
-
-function getCsrfToken() {
-    return document.querySelector('input[name="csrf_token"]').value;
-}
-
-// Block reordering functionality with up/down arrows
-function initializeBlockReordering() {
-    // Add up/down button event listeners
-    addReorderEventListeners();
-    
-    // Initialize button states
-    updateButtonStates();
-}
-
-function addReorderEventListeners() {
-    document.querySelectorAll('.move-up-btn').forEach(function(btn) {
-        btn.addEventListener('click', handleMoveUp);
-    });
-    
-    document.querySelectorAll('.move-down-btn').forEach(function(btn) {
-        btn.addEventListener('click', handleMoveDown);
-    });
-}
-
-function removeReorderEventListeners() {
-    document.querySelectorAll('.move-up-btn').forEach(function(btn) {
-        btn.removeEventListener('click', handleMoveUp);
-    });
-    
-    document.querySelectorAll('.move-down-btn').forEach(function(btn) {
-        btn.removeEventListener('click', handleMoveDown);
-    });
-}
-
-function handleMoveUp(e) {
-    const blockSection = e.target.closest('.block-section');
-    const blockSections = Array.from(document.querySelectorAll('.block-section[data-block-id]'));
-    const currentIndex = blockSections.indexOf(blockSection);
-    
-    if (currentIndex > 0) {
-        const prevBlock = blockSections[currentIndex - 1];
-        blockSection.parentNode.insertBefore(blockSection, prevBlock);
-        updatePositions();
-        updateButtonStates();
-        saveNewOrder();
-    }
-}
-
-function handleMoveDown(e) {
-    const blockSection = e.target.closest('.block-section');
-    const blockSections = Array.from(document.querySelectorAll('.block-section[data-block-id]'));
-    const currentIndex = blockSections.indexOf(blockSection);
-    
-    if (currentIndex < blockSections.length - 1) {
-        const nextBlock = blockSections[currentIndex + 1];
-        blockSection.parentNode.insertBefore(blockSection, nextBlock.nextSibling);
-        updatePositions();
-        updateButtonStates();
-        saveNewOrder();
-    }
-}
-
-function updateButtonStates() {
-    const blockSections = Array.from(document.querySelectorAll('.block-section[data-block-id]'));
-    
-    blockSections.forEach((blockSection, index) => {
-        const upBtn = blockSection.querySelector('.move-up-btn');
-        const downBtn = blockSection.querySelector('.move-down-btn');
-        
-        if (upBtn) {
-            upBtn.disabled = index === 0;
-            upBtn.style.opacity = index === 0 ? '0.5' : '1';
-        }
-        
-        if (downBtn) {
-            downBtn.disabled = index === blockSections.length - 1;
-            downBtn.style.opacity = index === blockSections.length - 1 ? '0.5' : '1';
-        }
-    });
-}
-
-function updatePositions() {
-    const blocks = document.querySelectorAll('.block-section');
-    blocks.forEach((block, index) => {
-        block.dataset.position = index + 1;
-    });
-}
-
-function saveNewOrder() {
-    const blocks = document.querySelectorAll('.block-section[data-block-id]');
-    const blockData = Array.from(blocks).map((block, index) => ({
-        id: parseInt(block.dataset.blockId),
-        position: index + 1
-    }));
-    
-    fetch('/api/update_block_order', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify({ blocks: blockData })
-    }).then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            return response.text().then(text => {
-                throw new Error(`HTTP ${response.status}: ${text}`);
-            });
-        }
-    }).then(data => {
-        // Success - no need to reload, just update button states
-        updateButtonStates();
-    }).catch(error => {
-        console.error('Error saving order:', error);
-        showError('Failed to save block order: ' + error.message);
-    });
-}
-
-function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-        setTimeout(() => {
-            errorDiv.style.display = 'none';
-        }, 5000);
-    } else {
-        alert(message);
-    }
-}
-
-// Delete confirmation modal functionality
-function showDeleteModal(type, id, name, details) {
-    const modal = document.getElementById('deleteModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalMessage = document.getElementById('modalMessage');
-    const modalDetails = document.getElementById('modalDetails');
-    const modalDetailsBody = document.getElementById('modalDetailsBody');
-    const confirmBtn = document.getElementById('modalConfirmBtn');
-    
-    if (type === 'block') {
-        modalTitle.textContent = 'Delete Block';
-        modalMessage.innerHTML = '<p>Are you sure you want to delete the block <strong>"' + name + '"</strong>?</p><p>This will also delete all subnets within this block.</p>';
-        modalDetails.style.display = 'none';
-        confirmBtn.onclick = function() { deleteBlock(id); };
-    } else if (type === 'subnet') {
-        modalTitle.textContent = 'Delete Subnet';
-        modalMessage.innerHTML = '<p>Are you sure you want to delete this subnet?</p><p>This subnet is part of block <strong>"' + details.block + '"</strong>.</p>';
-        modalDetails.style.display = 'block';
-        modalDetailsBody.innerHTML = `
-            <tr>
-                <td>${details.cidr}</td>
-                <td>${details.vlan}</td>
-                <td>${details.name}</td>
-            </tr>
-        `;
-        confirmBtn.onclick = function() { deleteSubnet(id); };
-    }
-    
-    modal.style.display = 'flex';
-    
-    // Focus the confirm button for keyboard navigation
-    confirmBtn.focus();
-}
-
-function hideDeleteModal() {
-    document.getElementById('deleteModal').style.display = 'none';
-}
-
-function deleteBlock(blockId) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/delete_block/' + blockId;
-    
-    // Add CSRF token
-    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
-    const csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = 'csrf_token';
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
-    
-    document.body.appendChild(form);
-    form.submit();
-}
-
-function deleteSubnet(subnetId) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/delete_subnet/' + subnetId;
-    
-    // Add CSRF token
-    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
-    const csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = 'csrf_token';
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
-    
-    document.body.appendChild(form);
-    form.submit();
-}
-
-// Close modal when clicking outside or on cancel
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('deleteModal');
-    
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            hideDeleteModal();
-        }
-    });
-    
-    document.getElementById('modalCancelBtn').addEventListener('click', hideDeleteModal);
-    
-    // Add keyboard support
-    document.addEventListener('keydown', function(e) {
-        if (modal.style.display === 'flex') {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('modalConfirmBtn').click();
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                hideDeleteModal();
-            }
-        }
-    });
-    
-    // Add event listeners for delete buttons
-    document.querySelectorAll('.delete-btn').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const deleteType = this.getAttribute('data-delete-type');
-            const deleteName = this.getAttribute('data-delete-name');
-            
-            if (deleteType === 'block') {
-                const blockId = this.getAttribute('data-block-id');
-                showDeleteModal('block', blockId, deleteName);
-            } else if (deleteType === 'subnet') {
-                const subnetId = this.getAttribute('data-delete-id');
-                const cidr = this.getAttribute('data-delete-cidr');
-                const vlan = this.getAttribute('data-delete-vlan');
-                const block = this.getAttribute('data-delete-block');
-                const details = {
-                    cidr: cidr,
-                    vlan: vlan,
-                    name: deleteName,
-                    block: block
-                };
-                showDeleteModal('subnet', subnetId, deleteName, details);
-            }
-        });
-    });
-});
-</script>
+    <script>
+        // Store base URL for external scripts
+        document.documentElement.setAttribute('data-base-url', '{{ url_for("main.index") }}');
+    </script>
+    <script src="{{ url_for('static', filename='js/ipam-validation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ipam-ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ipam-management.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/delete-modal.js') }}"></script>
 {% endblock %}

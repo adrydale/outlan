@@ -35,18 +35,14 @@ def test_base_template_has_collapsible_javascript(client):
     Test that the base template includes the collapsible JavaScript functionality.
 
     Verifies that:
-    - JavaScript functions for collapsible functionality are present
-    - Local storage integration is included
-    - Collapsible state management is implemented
+    - JavaScript file for collapsible functionality is referenced
+    - Collapsible JavaScript file is properly loaded
     """
     response = client.get("/")
     assert response.status_code == 200
 
-    # Check for the JavaScript function
-    assert b"initSnapshotCollapsible" in response.data
-    assert b"snapshot-summary-collapsed" in response.data
-    assert b"localStorage.setItem" in response.data
-    assert b"localStorage.getItem" in response.data
+    # Check for the external JavaScript file reference
+    assert b"collapsible.js" in response.data
 
 
 def test_collapsible_css_classes_present(client):
@@ -54,17 +50,17 @@ def test_collapsible_css_classes_present(client):
     Test that the CSS classes for collapsible functionality are present.
 
     Verifies that:
-    - CSS classes for collapsible states are defined
-    - Mobile-specific collapsible classes exist
-    - Dynamic class application is supported
+    - Collapsible HTML structure is in place
+    - CSS classes for collapsible elements exist
+    - HTML elements required for JavaScript functionality exist
     """
     response = client.get("/audit")
     assert response.status_code == 200
 
-    # Check for CSS classes that should be applied by JavaScript
-    # These are the classes that will be added/removed dynamically
-    assert b"collapsed" in response.data  # This class will be added by JS
-    assert b"mobile-collapsed" in response.data  # This class will be added by JS on mobile
+    # Check for the collapsible HTML structure and classes
+    assert b'class="snapshot-toggle"' in response.data
+    assert b'class="snapshot-content"' in response.data
+    assert b'id="snapshot-summary"' in response.data
 
 
 def test_audit_page_loads_successfully(client):
@@ -80,7 +76,7 @@ def test_audit_page_loads_successfully(client):
     assert response.status_code == 200
 
     # Check that the page contains expected content
-    assert b"Audit and Snapshots" in response.data
+    assert b"Audit logs and Snapshots" in response.data
     assert b"About Snapshots" in response.data
 
 

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+  <div class="error-box">
+    <h2 style="color:var(--color-danger-bright); margin-bottom:0.5em;">Import Validation Errors</h2>
+    <p style="font-size:1.1em; margin-bottom:1em;">
+      Found <strong>{{ error_count }}</strong> validation error{{ 's' if error_count != 1 else '' }} in your CSV file. 
+      Please correct the following issues and try importing again.
+    </p>
+    
+    {% if validation_errors %}
+    <div style="margin-bottom: 1.5em;">
+      <table class="validation-errors-table" style="width:100%; border-collapse:collapse; font-size: 0.9em;">
+        <thead>
+          <tr style="background: var(--color-bg-tertiary); border-bottom: 2px solid var(--color-border);">
+            <th style="padding: 0.75em; text-align: left; border-right: 1px solid var(--color-border); width: 80px;">Row</th>
+            <th style="padding: 0.75em; text-align: left; border-right: 1px solid var(--color-border); width: 120px;">Block</th>
+            <th style="padding: 0.75em; text-align: left; border-right: 1px solid var(--color-border); width: 130px;">Network</th>
+            <th style="padding: 0.75em; text-align: left; border-right: 1px solid var(--color-border); width: 100px;">VLAN</th>
+            <th style="padding: 0.75em; text-align: left; border-right: 1px solid var(--color-border); width: 150px;">Subnet Name</th>
+            <th style="padding: 0.75em; text-align: left;">Error Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for error in validation_errors %}
+          <tr style="border-bottom: 1px solid var(--color-border-light);">
+            <td style="padding: 0.5em; border-right: 1px solid var(--color-border-light); font-weight: bold; color: var(--color-danger);">
+              {{ error.row_number }}
+            </td>
+            <td style="padding: 0.5em; border-right: 1px solid var(--color-border-light); {% if error.field_errors.block_name %}background: var(--color-error-bg); color: var(--color-danger-bright);{% endif %}">
+              {{ error.data.block_name if error.data.block_name else '(empty)' }}
+            </td>
+            <td style="padding: 0.5em; border-right: 1px solid var(--color-border-light); {% if error.field_errors.cidr %}background: var(--color-error-bg); color: var(--color-danger-bright);{% endif %}">
+              {{ error.data.cidr if error.data.cidr else '(empty)' }}
+            </td>
+            <td style="padding: 0.5em; border-right: 1px solid var(--color-border-light); {% if error.field_errors.vlan_id %}background: var(--color-error-bg); color: var(--color-danger-bright);{% endif %}">
+              {{ error.data.vlan_id if error.data.vlan_id else '(empty)' }}
+            </td>
+            <td style="padding: 0.5em; border-right: 1px solid var(--color-border-light); {% if error.field_errors.subnet_name %}background: var(--color-error-bg); color: var(--color-danger-bright);{% endif %}">
+              {{ error.data.subnet_name if error.data.subnet_name else '(empty)' }}
+            </td>
+            <td style="padding: 0.5em; color: var(--color-danger-bright); font-weight: 500;">
+              {{ error.error_message }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    {% if error_count > validation_errors|length %}
+    <p style="color: var(--color-text-secondary); font-style: italic; margin-bottom: 1em;">
+      Showing first {{ validation_errors|length }} errors. There are {{ error_count - validation_errors|length }} additional errors not shown.
+    </p>
+    {% endif %}
+    {% endif %}
+    
+    <div style="margin-top: 1.5em; padding: 1em; background: var(--color-info-bg); border: 1px solid var(--color-info); border-radius: 6px;">
+      <h4 style="margin: 0 0 0.5em 0; color: var(--color-text-primary);">Common Issues:</h4>
+      <ul style="margin: 0; color: var(--color-text-secondary); font-size: 0.9em;">
+        <li><strong>Empty fields:</strong> Block names, subnet names, and CIDR values cannot be empty</li>
+        <li><strong>Invalid CIDR:</strong> Network addresses must be in valid CIDR format (e.g., 192.168.1.0/24)</li>
+        <li><strong>Invalid VLAN:</strong> VLAN IDs must be between 1-4094, or left empty</li>
+        <li><strong>Column count:</strong> Each row must have exactly 4 columns: Block, Network, VLAN, Subnet Name</li>
+        <li><strong>Headers:</strong> CSV must start with exact headers: Block, Network, VLAN, Subnet Name</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin-top: 1.5em; display: flex; gap: 1em; justify-content: center;">
+      <a href="{{ url_for('import_export.import_export') }}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center;">
+        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+          <path d="M19 7v4H5.83l3.58-3.59L8 6l-6 6 6 6 1.41-1.41L5.83 13H21V7z"/>
+        </svg>
+        Back to Import/Export
+      </a>
+      <a href="{{ url_for('import_export.download_example_csv') }}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center;">
+        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 0.5em;">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Download Example CSV
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}

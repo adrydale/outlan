@@ -45,7 +45,7 @@ jobs:
           type=semver,pattern={{major}}.{{minor}}
           type=semver,pattern={{major}}
           type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value=develop,enable={{is_default_branch}}
+          type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 
 
     - name: Build Docker image (no push)
@@ -150,7 +150,7 @@ jobs:
           type=semver,pattern={{major}}.{{minor}}
           type=semver,pattern={{major}}
           type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value=develop,enable={{is_default_branch}}
+          type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 
     - name: Build and push secure Docker image
       uses: docker/build-push-action@v5
@@ -163,13 +163,4 @@ jobs:
         cache-to: type=gha,mode=max
         platforms: linux/amd64,linux/arm64
 
-    - name: Update VERSION file
-      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-      run: |
-        VERSION=${GITHUB_REF#refs/tags/}
-        echo $VERSION > VERSION
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add VERSION
-        git commit -m "Update VERSION to $VERSION" || echo "No changes to commit"
-        git push || echo "No changes to push" 
+ 

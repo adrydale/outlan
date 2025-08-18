@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Audit and Snapshots</h2>
+<h2>Audit logs and Snapshots</h2>
 <div class="snapshot-summary" id="snapshot-summary">
     <button class="snapshot-toggle" id="snapshot-toggle" aria-expanded="true">
         <svg class="toggle-icon" id="snapshot-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -51,7 +51,6 @@
                     <button type="button" class="current-state-btn" disabled>Current</button>
                 {% else %}
                     <form method="POST" action="{{ url_for('audit.restore_snapshot', snap_id=entry['id']) }}" style="display: inline;">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <button type="submit" class="btn-small delete-btn">Restore</button>
                     </form>
                 {% endif %}
@@ -86,7 +85,6 @@
                     <button type="button" class="current-state-btn" disabled>Current</button>
                 {% else %}
                                     <form method="POST" action="{{ url_for('audit.restore_snapshot', snap_id=entry['id']) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="btn-small delete-btn">Restore</button>
                 </form>
                 {% endif %}

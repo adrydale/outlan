@@ -21,7 +21,6 @@ def app_with_db():
 
     app = create_app()
     app.config["TESTING"] = True
-    app.config["WTF_CSRF_ENABLED"] = False  # Disable CSRF for testing
 
     with app.app_context():
         db.create_all()
@@ -41,7 +40,6 @@ def client():
 
     app = create_app()
     app.config["TESTING"] = True
-    app.config["WTF_CSRF_ENABLED"] = False  # Disable CSRF for testing
 
     with app.app_context():
         db.create_all()

@@ -38,16 +38,16 @@ def test_export_csv_success(app_with_db, test_data):
         # Check CSV structure
         assert len(rows) >= 2  # Header + data rows
         assert "Block" in rows[0]
+        assert "Network" in rows[0]
+        assert "VLAN" in rows[0]
         assert "Subnet Name" in rows[0]
-        assert "VLAN ID" in rows[0]
-        assert "CIDR" in rows[0]
 
         # Check data rows
         data_rows = rows[1:]
         assert len(data_rows) == 2  # Two subnets in block1
 
         # Check specific subnet data
-        subnet_names = [row[1] for row in data_rows]  # Subnet Name column
+        subnet_names = [row[3] for row in data_rows]  # Subnet Name column (now column 3)
         assert "Prod Network" in subnet_names
         assert "Prod DMZ" in subnet_names
 
@@ -90,7 +90,7 @@ def test_export_csv_nonexistent_block(app_with_db):
     """
     with app_with_db.test_client() as client:
         response = client.get("/export_csv/999")
-        assert response.status_code == 400  # Changed from 404 to 400 based on actual behavior
+        assert response.status_code == 404  # Correct: missing resources should return 404
 
 
 def test_export_csv_with_vlan_data(app_with_db, test_data):
@@ -257,7 +257,7 @@ def test_export_csv_with_database_error(app_with_db):
     with app_with_db.test_client() as client:
         # Test with invalid block ID that might cause database errors
         response = client.get("/export_csv/999")
-        assert response.status_code == 400  # Changed from 404 to 400 based on actual behavior
+        assert response.status_code == 404  # Correct: missing resources should return 404
 
 
 def test_export_csv_content_validation(app_with_db, test_data):
@@ -280,7 +280,7 @@ def test_export_csv_content_validation(app_with_db, test_data):
         rows = list(csv_reader)
 
         # Validate header
-        expected_headers = ["Block", "Subnet Name", "VLAN ID", "CIDR"]
+        expected_headers = ["Block", "Network", "VLAN", "Subnet Name"]
         assert rows[0] == expected_headers
 
         # Validate data rows
@@ -290,8 +290,8 @@ def test_export_csv_content_validation(app_with_db, test_data):
         for row in data_rows:
             assert len(row) == 4  # Should have 4 columns
             assert row[0] == block1.name  # Block name
-            assert row[1]  # Subnet name should not be empty
-            assert row[3]  # CIDR should not be empty
+            assert row[1]  # Network (CIDR) should not be empty
+            assert row[3]  # Subnet name should not be empty
 
 
 def test_export_csv_character_encoding(app_with_db):

@@ -1,0 +1,122 @@
+/* CSS Variables for consistent color scheme */
+:root {
+  /* Shared Colors - Used across all themes */
+  --color-accent: #525be1;
+  --color-accent-hover: #4c55d1;
+  --color-orange: #ff8c00;
+  --color-orange-hover: #e67c00;
+  
+  /* Dark Mode Colors (Default) */
+  --color-primary: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-hover: #2563eb;
+  
+  --color-secondary: #475569;
+  --color-secondary-hover: #64748b;
+  
+  --color-bg-primary: #1a1d26;
+  --color-bg-secondary: #242832;
+  --color-bg-tertiary: #2c313c;
+  --color-bg-quaternary: #16181f;
+  
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e2e8f0;
+  --color-text-muted: #cbd5e1;
+  --color-text-light: #f1f5f9;
+  
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-warning: #ffa500;
+  --color-danger: #8b2635;
+  --color-danger-hover: #a83242;
+  --color-danger-bright: #fa4069;
+  
+  --color-error-bg: #3d1a1a;
+  --color-warning-bg: #3d2d1a;
+  --color-success-bg: #2d4a3e;
+  
+  --color-border: #475569;
+  --color-border-light: #31364b;
+  --color-border-dark: #3a3f4c;
+  
+  --color-shadow-primary: #0f111844;
+  --color-shadow-success: #22c55e44;
+  --color-shadow-warning: #ffa50044;
+  --color-shadow-danger: #6e284944;
+}
+
+/* Light Mode Colors */
+[data-theme="light"] {
+  --color-primary: #ffffff;
+  --color-primary-dark: #f8fafc;
+  --color-primary-hover: #f1f5f9;
+  
+  --color-secondary: #a1aec2;
+  --color-secondary-hover: #94a3b8;
+  
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #e2e8f0;
+  --color-bg-tertiary: #f1f5f9;
+  --color-bg-quaternary: #e2e8f0;
+  
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+  --color-text-light: #334155;
+  
+  --color-success: #059669;
+  --color-success-hover: #047857;
+  --color-warning: #ea580c;
+  --color-danger: #e14848;
+  --color-danger-hover: #dc2626;
+  --color-danger-bright: #ef4444;
+  
+  --color-error-bg: #fef2f2;
+  --color-warning-bg: #fefcf3;
+  --color-success-bg: #d1fae5;
+  
+  --color-border: #cbd5e1;
+  --color-border-light: #e2e8f0;
+  --color-border-dark: #94a3b8;
+  
+  --color-shadow-primary: #00000011;
+  --color-shadow-success: #16a34a22;
+  --color-shadow-warning: #ea580c22;
+  --color-shadow-danger: #e1484822;
+}
+
+/* Midnight Mode Colors */
+[data-theme="midnight"] {
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-bg-quaternary: #0f172a;
+  
+  --color-text-primary: #f8fafc;
+  --color-border-light: #334155;
+  --color-border-dark: #1e293b;
+  
+  --color-success: #22c55e;
+  --color-success-hover: #16a34a;
+}
+
+/* Accessibility and Performance */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Ensure smooth transitions when switching themes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Override transition for specific elements that shouldn't animate */
+.theme-toggle,
+.theme-icon,
+.collapse-icon,
+.toggle-icon {
+  transition: background-color 0.2s ease;
+}

@@ -75,12 +75,9 @@ jobs:
         echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        name: Release ${{ github.ref_name }}
         body: |
           ## What's Changed
           
@@ -105,14 +102,4 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ github.ref_name }}
           ```
         draft: false
-        prerelease: false
-
-    - name: Update VERSION file
-      run: |
-        VERSION=${GITHUB_REF#refs/tags/}
-        echo $VERSION > VERSION
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add VERSION
-        git commit -m "Update VERSION to $VERSION" || echo "No changes to commit"
-        git push || echo "No changes to push" 
+        prerelease: false 

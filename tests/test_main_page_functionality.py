@@ -70,12 +70,11 @@ def test_main_page_has_flash_messages(app_with_db):
 
 def test_main_page_has_export_functionality(app_with_db):
     """
-    Test that the main page has export functionality.
+    Test that the main page has link to export functionality.
 
     Verifies that:
-    - Export buttons are present
-    - Export links are accessible
-    - Export functionality is properly integrated
+    - Navigation link to Import/Export page is present
+    - Export functionality is accessible via navigation
     """
     block = NetworkBlock(name="Test Block", position=1)
     db.session.add(block)
@@ -85,8 +84,8 @@ def test_main_page_has_export_functionality(app_with_db):
         response = client.get("/")
         assert response.status_code == 200
 
-        # Check for export functionality
-        assert b"export-btn" in response.data
+        # Check for export functionality link in navigation
+        assert b"Import/Export" in response.data
 
 
 def test_main_page_has_sorting_functionality(app_with_db):
@@ -110,6 +109,6 @@ def test_main_page_has_sorting_functionality(app_with_db):
         response = client.get("/")
         assert response.status_code == 200
 
-        # Check for sorting functionality
-        assert b"subnet-card" in response.data
+        # Check for sorting functionality (subnets are sorted by network)
+        assert b"subnet-row" in response.data
         assert b"block-content" in response.data

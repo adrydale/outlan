@@ -25,7 +25,29 @@ def audit_log():
             entry_dict = entry.to_dict()
             ts = entry.timestamp
             if ts:
-                ts_fmt = ts.strftime("%Y-%m-%d %H:%M:%S")
+                # Convert UTC timestamp to configured timezone for display
+                import pytz
+
+                from app.config import get_timezone
+
+                try:
+                    # Assume stored timestamp is UTC
+                    utc_ts = ts.replace(tzinfo=pytz.UTC)
+
+                    # Get configured timezone
+                    timezone_str = get_timezone()
+                    if timezone_str.startswith("UTC"):
+                        offset = int(timezone_str[3:])
+                        local_tz = pytz.FixedOffset(offset * 60)
+                    else:
+                        local_tz = pytz.timezone(timezone_str)
+
+                    # Convert to local timezone and format
+                    local_ts = utc_ts.astimezone(local_tz)
+                    ts_fmt = local_ts.strftime("%Y-%m-%d %H:%M:%S %Z")
+                except Exception:
+                    # Fallback to original format if conversion fails
+                    ts_fmt = ts.strftime("%Y-%m-%d %H:%M:%S UTC")
             else:
                 ts_fmt = "Unknown"
             entry_dict["timestamp"] = ts_fmt
@@ -124,11 +146,38 @@ def restore_confirmation(snap_id):
         if not snap:
             return (render_template("error.html", message="Snapshot not found.", version=current_app.version), 404)
 
+        # Convert UTC timestamp to configured timezone for display
+        if snap.timestamp:
+            import pytz
+
+            from app.config import get_timezone
+
+            try:
+                # Assume stored timestamp is UTC
+                utc_ts = snap.timestamp.replace(tzinfo=pytz.UTC)
+
+                # Get configured timezone
+                timezone_str = get_timezone()
+                if timezone_str.startswith("UTC"):
+                    offset = int(timezone_str[3:])
+                    local_tz = pytz.FixedOffset(offset * 60)
+                else:
+                    local_tz = pytz.timezone(timezone_str)
+
+                # Convert to local timezone and format
+                local_ts = utc_ts.astimezone(local_tz)
+                timestamp_display = local_ts.strftime("%Y-%m-%d %H:%M:%S %Z")
+            except Exception:
+                # Fallback to original format if conversion fails
+                timestamp_display = snap.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC")
+        else:
+            timestamp_display = "Unknown"
+
         return render_template(
             "restore_confirmation.html",
             snap_id=snap.id,
             details=snap.details,
-            timestamp=(snap.timestamp.strftime("%Y-%m-%d %H:%M:%S") if snap.timestamp else "Unknown"),
+            timestamp=timestamp_display,
             version=current_app.version,
         )
     except Exception as e:

@@ -1,4 +1,4 @@
-import ipaddress
+from app.utils import sort_networks_by_ip, sort_networks_by_name_with_network, sort_networks_by_vlan_with_network
 
 
 class MockSubnet:
@@ -9,53 +9,6 @@ class MockSubnet:
         self.cidr = cidr
         self.vlan_id = vlan_id
         self.name = name or f"Subnet {cidr}"
-
-
-def sort_networks_by_ip(subnets):
-    """Sort subnets by IP network address properly"""
-
-    def get_network_key(subnet):
-        """Get sorting key for network: (block_id, network_address, prefix_length)"""
-        try:
-            network = ipaddress.IPv4Network(subnet.cidr, strict=False)
-            return (subnet.block_id, int(network.network_address), network.prefixlen)
-        except ValueError:
-            # If CIDR is invalid, sort it to the end
-            return (subnet.block_id, float("inf"), 0)
-
-    return sorted(subnets, key=get_network_key)
-
-
-def sort_networks_by_vlan_with_network(subnets):
-    """Sort subnets by VLAN ID first, then by IP network address"""
-
-    def get_vlan_network_key(subnet):
-        """Get sorting key for VLAN + network: (block_id, vlan_id, network_address, prefix_length)"""
-        try:
-            network = ipaddress.IPv4Network(subnet.cidr, strict=False)
-            # Use a large number for null VLAN IDs to sort them last
-            vlan_id = subnet.vlan_id if subnet.vlan_id is not None else float("inf")
-            return (subnet.block_id, vlan_id, int(network.network_address), network.prefixlen)
-        except ValueError:
-            # If CIDR is invalid, sort it to the end
-            return (subnet.block_id, subnet.vlan_id or float("inf"), float("inf"), 0)
-
-    return sorted(subnets, key=get_vlan_network_key)
-
-
-def sort_networks_by_name_with_network(subnets):
-    """Sort subnets by name first, then by IP network address"""
-
-    def get_name_network_key(subnet):
-        """Get sorting key for name + network: (block_id, name, network_address, prefix_length)"""
-        try:
-            network = ipaddress.IPv4Network(subnet.cidr, strict=False)
-            return (subnet.block_id, subnet.name.lower(), int(network.network_address), network.prefixlen)
-        except ValueError:
-            # If CIDR is invalid, sort it to the end
-            return (subnet.block_id, subnet.name.lower(), float("inf"), 0)
-
-    return sorted(subnets, key=get_name_network_key)
 
 
 def test_network_sorting():

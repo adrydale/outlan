@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <title>{% block title %}Outlan IPAM{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/segment_planner.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/outlan_favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/outlan_favicon.svg') }}" type="image/svg+xml">
     <script>
         // Immediate theme initialization to prevent flash
         (function() {
@@ -12,17 +15,45 @@
             const storedTheme = localStorage.getItem('theme');
             const theme = storedTheme || serverTheme;
             document.documentElement.setAttribute('data-theme', theme);
+            // Store server theme for external scripts
+            document.documentElement.setAttribute('data-server-theme', serverTheme);
         })();
     </script>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">
-            <a href="{{ url_for('main.index') }}" class="logo-link">Outlan</a>
-            <span class="version-text">v{{ version }}</span>
+            <a href="{{ url_for('main.index') }}" class="logo-link">
+                <div class="logo-icon-container">
+                    <svg class="logo-icon" viewBox="38 78 144 128" width="28" height="26" xmlns="http://www.w3.org/2000/svg">
+                        <title>Outlan Logo</title>
+                        <style>
+                            .box { fill: none; stroke: currentColor; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+                            .wire { fill: none; stroke: currentColor; stroke-width: 8; stroke-linecap: butt; stroke-linejoin: round; }
+                        </style>
+                        <g id="network-group">
+                            <rect class="box" x="64" y="125" width="35" height="35" rx="10" ry="10" id="main1"/>
+                            <rect class="box" x="134" y="95" width="22" height="22" rx="7" ry="7" id="sub1"/>
+                            <rect class="box" x="134" y="131" width="22" height="22" rx="7" ry="7" id="sub2"/>
+                            <rect class="box" x="134" y="168" width="22" height="22" rx="7" ry="7" id="sub3"/>
+                            <path class="wire" d="m 99,142.5 h 35" id="conn1"/>
+                            <path class="wire" d="m 134,106 h -16 v 73 h 16" id="conn2"/>
+                        </g>
+                        <path class="wire" d="m 118,179 v 28" id="mergeline" style="stroke-linecap:round"/>
+                        <path class="box" d="m 162,207 c 9,0 16,-6 16,-15 V 93 c 0,-9 -7,-16 -16,-16 H 58 c -9,0 -16,7 -16,16 v 98 c 0,9 7,16 16,16 h 60" id="multipathline"/>
+                    </svg>
+                </div>
+                <div class="logo-text-container">
+                    <span class="logo-text">Outlan</span>
+                </div>
+            </a>
+            <div class="version-container">
+                <span class="version-text">v{{ version }}</span>
+            </div>
         </div>
         <div class="menu">
-            <a href="{{ url_for('audit.audit_log') }}">Audit and Snapshots</a>
+            <a href="{{ url_for('import_export.import_export') }}">Import/Export</a>
+            <a href="{{ url_for('audit.audit_log') }}">Logs</a>
             <button id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode">
                 <span class="theme-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -45,133 +76,8 @@
         {% block content %}{% endblock %}
     </main>
     
-    <script>
-        // Theme toggle functionality
-        function initTheme() {
-            const serverTheme = '{{ theme }}';
-            const storedTheme = localStorage.getItem('theme');
-            const theme = storedTheme || serverTheme;
-            document.documentElement.setAttribute('data-theme', theme);
-            updateThemeIcon(theme);
-        }
-        
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || '{{ theme }}';
-            let newTheme;
-            
-            // Cycle through: light -> midnight -> dark -> light
-            if (currentTheme === 'light') {
-                newTheme = 'midnight';
-            } else if (currentTheme === 'midnight') {
-                newTheme = 'dark';
-            } else {
-                newTheme = 'light';
-            }
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        }
-        
-        function updateThemeIcon(theme) {
-            const icon = document.querySelector('.theme-icon');
-            if (icon) {
-                if (theme === 'dark') {
-                    icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>';
-                } else if (theme === 'midnight') {
-                    icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
-                } else {
-                    icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>';
-                }
-            }
-        }
-        
-        // Initialize theme on page load
-        document.addEventListener('DOMContentLoaded', initTheme);
-        
-        // Add click handler for theme toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('theme-toggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', toggleTheme);
-            }
-        });
-        
-        // Snapshot summary collapsible functionality
-        function initSnapshotCollapsible() {
-            const snapshotSummary = document.getElementById('snapshot-summary');
-            const snapshotToggle = document.getElementById('snapshot-toggle');
-            const snapshotContent = document.getElementById('snapshot-content');
-            const toggleIcon = document.getElementById('snapshot-toggle-icon');
-            
-            if (!snapshotSummary || !snapshotToggle || !snapshotContent || !toggleIcon) {
-                return; // Not on a page with snapshot summary
-            }
-            
-            // Check if we're on mobile
-            const isMobile = window.innerWidth <= 767;
-            
-            // Get stored state or use default
-            const storageKey = 'snapshot-summary-collapsed';
-            const storedState = localStorage.getItem(storageKey);
-            
-            let isCollapsed;
-            if (storedState !== null) {
-                // Use stored preference
-                isCollapsed = storedState === 'true';
-            } else {
-                // Use default: collapsed on both desktop and mobile
-                isCollapsed = true;
-            }
-            
-            // Apply initial state
-            updateSnapshotState(isCollapsed);
-            
-            // Add click handler
-            snapshotToggle.addEventListener('click', function() {
-                const currentState = snapshotSummary.classList.contains('collapsed');
-                const newState = !currentState;
-                updateSnapshotState(newState);
-                localStorage.setItem(storageKey, newState.toString());
-            });
-            
-            function updateSnapshotState(collapsed) {
-                if (collapsed) {
-                    snapshotSummary.classList.add('collapsed');
-                    snapshotToggle.setAttribute('aria-expanded', 'false');
-                    toggleIcon.innerHTML = '<path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/>';
-                } else {
-                    snapshotSummary.classList.remove('collapsed');
-                    snapshotToggle.setAttribute('aria-expanded', 'true');
-                    toggleIcon.innerHTML = '<path d="M19 13H5v-2h14v2z"/>';
-                }
-                
-                // Add mobile-specific class for mobile devices
-                if (isMobile && collapsed) {
-                    snapshotSummary.classList.add('mobile-collapsed');
-                } else {
-                    snapshotSummary.classList.remove('mobile-collapsed');
-                }
-            }
-            
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                const newIsMobile = window.innerWidth <= 767;
-                if (newIsMobile !== isMobile) {
-                    isMobile = newIsMobile;
-                    const currentState = snapshotSummary.classList.contains('collapsed');
-                    if (isMobile && currentState) {
-                        snapshotSummary.classList.add('mobile-collapsed');
-                    } else {
-                        snapshotSummary.classList.remove('mobile-collapsed');
-                    }
-                }
-            });
-        }
-        
-        // Initialize snapshot collapsible on page load
-        document.addEventListener('DOMContentLoaded', initSnapshotCollapsible);
-    </script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/collapsible.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

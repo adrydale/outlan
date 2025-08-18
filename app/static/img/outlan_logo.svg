@@ -1,0 +1,17 @@
+<svg class="logo-icon" viewBox="38 78 144 128" width="27" height="26" xmlns="http://www.w3.org/2000/svg">
+  <title>Outlan Logo</title>
+  <style>
+    .box { fill: none; stroke: currentColor; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire { fill: none; stroke: currentColor; stroke-width: 8; stroke-linecap: butt; stroke-linejoin: round; }
+  </style>
+  <g id="network-group">
+    <rect class="box" x="64" y="125" width="35" height="35" rx="10" ry="10" id="main1"/>
+    <rect class="box" x="134" y="95" width="22" height="22" rx="7" ry="7" id="sub1"/>
+    <rect class="box" x="134" y="131" width="22" height="22" rx="7" ry="7" id="sub2"/>
+    <rect class="box" x="134" y="168" width="22" height="22" rx="7" ry="7" id="sub3"/>
+    <path class="wire" d="m 99,142.5 h 35" id="conn1"/>
+    <path class="wire" d="m 134,106 h -16 v 73 h 16" id="conn2"/>
+  </g>
+  <path class="wire" d="m 118,179 v 28" id="mergeline" style="stroke-linecap:round"/>
+  <path class="box" d="m 162,207 c 9,0 16,-6 16,-15 V 93 c 0,-9 -7,-16 -16,-16 H 58 c -9,0 -16,7 -16,16 v 98 c 0,9 7,16 16,16 h 60" id="multipathline"/>
+</svg>

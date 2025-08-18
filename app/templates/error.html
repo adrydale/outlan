@@ -3,7 +3,7 @@
 <main>
   <div class="error-box">
     <h2 style="color:var(--color-danger-bright); margin-bottom:0.5em;">Error</h2>
-    <p style="font-size:1.1em; margin-bottom:1em;">{{ message|safe }}</p>
+    <p style="font-size:1.1em; margin-bottom:1em;">{{ message }}</p>
     
     {% if traceback %}
     <div class="traceback-section">
@@ -19,63 +19,69 @@
     
     {% if attempted and (conflict or overlapping) %}
       <table class="conflict-table" style="width:100%; margin-bottom:1.2em; border-collapse:collapse;">
-        <tr>
-          <th>Entry</th>
-          <th>CIDR</th>
-          <th>VLAN</th>
-          <th>Name</th>
-        </tr>
-        {% if conflict %}
-        <tr>
-          <td style="font-weight:bold;">EXISTING</td>
-          <td{% if conflict.conflict_fields and conflict.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ conflict.cidr if conflict.cidr else '-' }}</td>
-          <td{% if conflict.conflict_fields and conflict.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ conflict.vlan_id if conflict.vlan_id else '-' }}</td>
-          <td{% if conflict.conflict_fields and conflict.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ conflict.name if conflict.name else '-' }}</td>
-        </tr>
-        <tr>
-          <td style="font-weight:bold;">ATTEMPTED ADD</td>
-          <td{% if conflict.conflict_fields and conflict.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ attempted.cidr }}</td>
-          <td{% if conflict.conflict_fields and conflict.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ attempted.vlan }}</td>
-          <td{% if conflict.conflict_fields and conflict.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ attempted.name }}</td>
-        </tr>
-        {% elif overlapping %}
-        <tr>
-          <td style="font-weight:bold;">EXISTING</td>
-          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ overlapping.cidr if overlapping.cidr else '-' }}</td>
-          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ overlapping.vlan_id if overlapping.vlan_id else '-' }}</td>
-          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ overlapping.name if overlapping.name else '-' }}</td>
-        </tr>
-        <tr>
-          <td style="font-weight:bold;">ATTEMPTED ADD</td>
-          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ attempted.cidr }}</td>
-          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ attempted.vlan }}</td>
-          <td{% if overlapping.conflict_fields and overlapping.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ attempted.name }}</td>
-        </tr>
+        {% if overlapping and overlapping.conflict_fields and overlapping.conflict_fields.base_network %}
+          <!-- Container overlap - no VLAN column -->
+          <tr>
+            <th>Entry</th>
+            <th>Network</th>
+            <th>Name</th>
+            <th>Block</th>
+          </tr>
+          <tr>
+            <td style="font-weight:bold;">EXISTING</td>
+            <td class="conflict-cell">{{ overlapping.base_network if overlapping.base_network else '-' }}</td>
+            <td>{{ overlapping.name if overlapping.name else '-' }}</td>
+            <td>{{ overlapping.block_name if overlapping.block_name else '-' }}</td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold;">ATTEMPTED ADD</td>
+            <td class="conflict-cell">{{ attempted.cidr }}</td>
+            <td>{{ attempted.name }}</td>
+            <td>{{ attempted.block_name if attempted.block_name else 'Current Block' }}</td>
+          </tr>
+        {% else %}
+          <!-- Subnet conflict/overlap - with VLAN column -->
+          <tr>
+            <th>Entry</th>
+            <th>CIDR</th>
+            <th>VLAN</th>
+            <th>Name</th>
+          </tr>
+          {% if conflict %}
+          <tr>
+            <td style="font-weight:bold;">EXISTING</td>
+            <td{% if conflict.conflict_fields and conflict.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ conflict.cidr if conflict.cidr else '-' }}</td>
+            <td{% if conflict.conflict_fields and conflict.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ conflict.vlan_id if conflict.vlan_id else '-' }}</td>
+            <td{% if conflict.conflict_fields and conflict.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ conflict.name if conflict.name else '-' }}</td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold;">ATTEMPTED ADD</td>
+            <td{% if conflict.conflict_fields and conflict.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ attempted.cidr }}</td>
+            <td{% if conflict.conflict_fields and conflict.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ attempted.vlan }}</td>
+            <td{% if conflict.conflict_fields and conflict.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ attempted.name }}</td>
+          </tr>
+          {% elif overlapping %}
+          <tr>
+            <td style="font-weight:bold;">EXISTING</td>
+            <td{% if overlapping.conflict_fields and overlapping.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ overlapping.cidr if overlapping.cidr else '-' }}</td>
+            <td{% if overlapping.conflict_fields and overlapping.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ overlapping.vlan_id if overlapping.vlan_id else '-' }}</td>
+            <td{% if overlapping.conflict_fields and overlapping.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ overlapping.name if overlapping.name else '-' }}</td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold;">ATTEMPTED ADD</td>
+            <td{% if overlapping.conflict_fields and overlapping.conflict_fields.cidr %} class="conflict-cell"{% endif %}>{{ attempted.cidr }}</td>
+            <td{% if overlapping.conflict_fields and overlapping.conflict_fields.vlan_id %} class="conflict-cell"{% endif %}>{{ attempted.vlan }}</td>
+            <td{% if overlapping.conflict_fields and overlapping.conflict_fields.name %} class="conflict-cell"{% endif %}>{{ attempted.name }}</td>
+          </tr>
+          {% endif %}
         {% endif %}
       </table>
     {% endif %}
-    <a href="{{ url_for('main.index') }}" class="btn-main">Back to IPAM</a>
+    <div style="text-align: center; margin-top: 1.5em;">
+      <a href="{{ url_for('main.index') }}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center;">Back to IPAM</a>
+    </div>
   </div>
 </main>
 
-<script>
-function toggleTraceback() {
-  const content = document.getElementById('traceback-content');
-  const button = document.querySelector('.traceback-toggle');
-  const toggleText = button.querySelector('.toggle-text');
-  const toggleIcon = button.querySelector('.toggle-icon');
-  
-  if (content.style.display === 'none') {
-    content.style.display = 'block';
-    toggleText.textContent = 'Hide Technical Details';
-    toggleIcon.textContent = '▲';
-  } else {
-    content.style.display = 'none';
-    toggleText.textContent = 'Show Technical Details';
-    toggleIcon.textContent = '▼';
-  }
-}
-
-
-</script>
+<script src="{{ url_for('static', filename='js/error-page.js') }}"></script>
 {% endblock %}

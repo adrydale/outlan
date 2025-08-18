@@ -25,9 +25,13 @@ def test_subnet_name_validation(app_with_db, test_block):
 
         # Test invalid name (empty)
         response = client.post(
-            "/add_subnet", data={"block_id": test_block.id, "name": "", "cidr": "192.168.2.0/24", "vlan_id": "101"}
+            "/add_subnet",
+            data={"block_id": test_block.id, "name": "", "cidr": "192.168.2.0/24", "vlan_id": "101"},
+            follow_redirects=True,
         )
-        assert response.status_code in [400, 302]  # Either validation error or accepted
+        # Form validation should return 200 with error message for good UX
+        assert response.status_code == 200
+        assert b"error" in response.data.lower() or b"cannot be empty" in response.data.lower()
 
 
 def test_cidr_validation(app_with_db, test_block):
@@ -58,8 +62,11 @@ def test_cidr_validation(app_with_db, test_block):
                     "cidr": invalid_cidr,
                     "vlan_id": f"{100 + i}",
                 },
+                follow_redirects=True,
             )
-            assert response.status_code in [400, 302]  # Either validation error or accepted
+            # Form validation should return 200 with error message for good UX
+            assert response.status_code == 200
+            assert b"error" in response.data.lower() or b"invalid" in response.data.lower()
 
         # Test valid CIDR
         response = client.post(
@@ -71,7 +78,7 @@ def test_cidr_validation(app_with_db, test_block):
                 "vlan_id": "200",
             },
         )
-        assert response.status_code in [400, 302]  # Either validation error or accepted
+        assert response.status_code == 302  # Success redirect
 
 
 def test_vlan_validation(app_with_db, test_block):
@@ -89,18 +96,21 @@ def test_vlan_validation(app_with_db, test_block):
             "/add_subnet",
             data={"block_id": test_block.id, "name": "Test Subnet 1", "cidr": "192.168.1.0/24", "vlan_id": "100"},
         )
-        assert response.status_code in [400, 302]  # Either validation error or accepted
+        assert response.status_code == 302  # Success redirect
 
         # Test invalid VLAN ID (too high)
         response = client.post(
             "/add_subnet",
             data={"block_id": test_block.id, "name": "Test Subnet 2", "cidr": "192.168.2.0/24", "vlan_id": "9999"},
+            follow_redirects=True,
         )
-        assert response.status_code in [400, 302]  # Either validation error or accepted
+        # Form validation should return 200 with error message for good UX
+        assert response.status_code == 200
+        assert b"error" in response.data.lower() or b"invalid" in response.data.lower()
 
         # Test empty VLAN ID
         response = client.post(
             "/add_subnet",
             data={"block_id": test_block.id, "name": "Test Subnet 3", "cidr": "192.168.3.0/24", "vlan_id": ""},
         )
-        assert response.status_code in [400, 302]  # Either validation error or accepted
+        assert response.status_code == 302  # Success redirect (empty VLAN is valid)

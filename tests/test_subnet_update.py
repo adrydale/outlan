@@ -58,7 +58,8 @@ def test_edit_subnet_with_invalid_data(app_with_db, test_block):
                 "vlan_id": "9999",  # Invalid VLAN
             },
         )
-        assert response.status_code in [400, 302]  # Either validation error or accepted
+        assert response.status_code == 200  # Form validation errors return 200 with error message
+        assert b"error" in response.data.lower() or b"invalid" in response.data.lower()
 
 
 def test_edit_nonexistent_subnet(app_with_db):
@@ -72,4 +73,5 @@ def test_edit_nonexistent_subnet(app_with_db):
         response = client.post(
             "/edit_subnet/999", data={"name": "New Name", "cidr": "192.168.1.0/24", "vlan_id": "100"}
         )
-        assert response.status_code == 400  # Route returns 400 for not found, not 404
+        assert response.status_code == 200  # Form validation errors return 200 with error message
+        assert b"error" in response.data.lower() or b"not found" in response.data.lower()

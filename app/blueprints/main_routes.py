@@ -1,3 +1,4 @@
+import ipaddress
 import logging
 import os
 
@@ -98,12 +99,19 @@ def index():
             logger.error(f"Database connection failed: {str(e)}")
             return redirect(url_for("main.show_init"))
 
-        # Get blocks and subnets using the service
+        # Get blocks, containers, and subnets using the service
         blocks = DatabaseService.get_all_blocks()
+        containers = DatabaseService.get_all_containers()
         subnets = DatabaseService.get_all_subnets()
 
         # Convert blocks to dictionaries
         blocks_dict = [block.to_dict() for block in blocks]
+
+        # Group containers by block_id and convert to dictionaries
+        containers_by_block = {}
+        for container in containers:
+            container_dict = container.to_dict()
+            containers_by_block.setdefault(container.block_id, []).append(container_dict)
 
         # Group subnets by block_id and convert to dictionaries
         subnets_by_block = {}
@@ -111,13 +119,76 @@ def index():
             subnet_dict = subnet.to_dict()
             subnets_by_block.setdefault(subnet.block_id, []).append(subnet_dict)
 
+        # Create hierarchical network structure for each block
+        hierarchical_networks_by_block = {}
+        for block in blocks_dict:
+            block_id = block["id"]
+            block_containers = containers_by_block.get(block_id, [])
+            block_subnets = subnets_by_block.get(block_id, [])
+
+            # Create hierarchical structure
+            hierarchical_networks = []
+
+            # First, add all containers as top-level entries
+            for container in block_containers:
+                try:
+                    container_net = ipaddress.ip_network(container["base_network"], strict=False)
+                    container_entry = {
+                        "type": "container",
+                        "container": container,
+                        "subnets": [],
+                        "sort_key": container_net,
+                    }
+
+                    # Find subnets that belong to this container
+                    for subnet in block_subnets:
+                        try:
+                            subnet_net = ipaddress.ip_network(subnet["cidr"], strict=False)
+                            if subnet_net.subnet_of(container_net):
+                                container_entry["subnets"].append(subnet)
+                        except ValueError:
+                            continue
+
+                    hierarchical_networks.append(container_entry)
+                except ValueError:
+                    continue
+
+            # Then, add orphaned subnets (subnets not in any container)
+            for subnet in block_subnets:
+                is_orphaned = True
+                try:
+                    subnet_net = ipaddress.ip_network(subnet["cidr"], strict=False)
+                    for container in block_containers:
+                        try:
+                            container_net = ipaddress.ip_network(container["base_network"], strict=False)
+                            if subnet_net.subnet_of(container_net):
+                                is_orphaned = False
+                                break
+                        except ValueError:
+                            continue
+
+                    if is_orphaned:
+                        hierarchical_networks.append({"type": "subnet", "subnet": subnet, "sort_key": subnet_net})
+                except ValueError:
+                    # Add invalid CIDRs as orphaned subnets
+                    hierarchical_networks.append({"type": "subnet", "subnet": subnet, "sort_key": None})
+
+            # Sort hierarchical networks by IP address
+            hierarchical_networks.sort(
+                key=lambda x: x["sort_key"] if x["sort_key"] else ipaddress.ip_network("255.255.255.255/32")
+            )
+
+            hierarchical_networks_by_block[block_id] = hierarchical_networks
+
         # Get edit parameter from request args
         edit_id = request.args.get("edit")
 
         return render_template(
             "ipam_main.html",
             blocks=blocks_dict,
+            containers_by_block=containers_by_block,
             subnets_by_block=subnets_by_block,
+            hierarchical_networks_by_block=hierarchical_networks_by_block,
             edit_id=edit_id,
             version=current_app.version,
             theme=get_theme(),
