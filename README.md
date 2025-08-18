@@ -16,6 +16,7 @@ A minimal IP Address Management (IPAM) system for small networks and labs (such 
 - **REST API**: Full programmatic access with Swagger documentation
 - **Modern Interface**: Responsive design with multiple themes
 - **Docker Ready**: Easy deployment with Docker and Docker Compose
+- **Privacy First**: Complete data sovereignty with local-only operation—no telemetry or external data transmission.
 
 ## Screenshots
 
