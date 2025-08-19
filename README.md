@@ -23,14 +23,14 @@ A minimal IP Address Management (IPAM) system for small networks and labs (such 
 ### Main Interface
 ![Outlan IPAM Main Interface - Network Block and Subnet Management](screenshots/screenshot_main_interface.png)
 
+### Network Segment View
+![VLAN Subnet Segment Planning and Visualization](screenshots/screenshot_segment_view.png)
+
 ### Import/Export
 ![IPAM CSV Import Export Interface for Network Data](screenshots/screenshot_import_export.png)
 
 ### Audit Logging
 ![Network Management Audit Logging and Change Tracking](screenshots/screenshot_audit_page.png)
-
-### Network Segment View
-![VLAN Subnet Segment Planning and Visualization](screenshots/screenshot_segment_view.png)
 
 ## Quick Start
 
