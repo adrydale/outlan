@@ -4,7 +4,7 @@
   <img src="app/static/img/outlan_logo.svg" alt="Outlan IPAM Logo - Network Management System" width="100" height="100">
 </p>
 
-A minimal IP Address Management (IPAM) system for small networks and labs (such a homelab). Simple web interface for network documentation with blocks, subnets, VLAN assignments, audit logging, and data import/export.
+A minimal IP Address Management (IPAM) system for small networks and labs (such a homelab). Simple web interface and REST API for network documentation with blocks, subnets, VLAN assignments, audit logging, and data import/export.
 
 **Current Version**: 0.2.1
 
@@ -12,7 +12,7 @@ A minimal IP Address Management (IPAM) system for small networks and labs (such 
 
 - **Network Blocks & Subnets**: Organize IP addresses with VLAN assignments (1-4094 range)
 - **Network Containers**: Group related subnets for better organization
-- **Data Management**: CSV import/export, snapshots, and audit logging  
+- **Data Management**: CSV import/export, snapshots, and audit logging
 - **REST API**: Full programmatic access with Swagger documentation
 - **Modern Interface**: Responsive design with multiple themes
 - **Docker Ready**: Easy deployment with Docker and Docker Compose
@@ -144,7 +144,7 @@ pre-commit run --all-files
 
 Available tags from `ghcr.io/adrydale/outlan`:
 - `latest` - Latest stable release from main branch
-- `develop` - Development builds from develop branch  
+- `develop` - Development builds from develop branch
 - `v0.2.1` - Specific version tags
 
 ## License
