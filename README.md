@@ -85,7 +85,7 @@ All configuration options can be set via environment variables or `/app/config/s
 
 ## API Documentation
 
-Full REST API with comprehensive CRUD operations and filtering capabilities. Interactive documentation available at `/api/swagger/` when running.
+Full REST API with comprehensive CRUD operations and filtering capabilities. Interactive documentation available at `/swagger/` when running.
 
 ### Core Endpoints
 - `GET /api/health` - Application health check with database validation
