@@ -207,6 +207,18 @@ def index():
         )
 
 
+# Add additional routes for Swagger documentation.  The /swagger route is
+# created in api_routes.py as part of the API creation. These routes must exist
+# in main_routes.py as subsequent routes defined in api_routes.py are prefixed
+# with /api/*.
+@main_bp.route("/docs")
+@main_bp.route("/api/")
+@main_bp.route("/api/swagger")
+def swagger_redirects():
+    """Redirect alternative paths to Swagger documentation"""
+    return redirect("/swagger/")
+
+
 @main_bp.route("/settings")
 def settings():
     """Display all configuration settings and their sources"""
