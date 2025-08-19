@@ -110,11 +110,24 @@ class TestSwaggerDocumentation:
         # Check that it's about our API
         assert "outlan" in info["title"].lower() or "ipam" in info["title"].lower()
 
-    def test_api_endpoint_redirect(self, client):
-        """Test that the base /api endpoint redirects to documentation."""
+    def test_swagger_redirect_routes(self, client):
+        """Test that all redirect routes properly redirect to /swagger/."""
+        redirect_routes = ["/docs", "/api/", "/api/swagger"]
+
+        for route in redirect_routes:
+            response = client.get(route)
+            assert response.status_code == 302, f"Route {route} should return 302 redirect"
+            assert response.location == "/swagger/", f"Route {route} should redirect to /swagger/"
+
+    def test_canonical_swagger_route(self, client):
+        """Test that the canonical /swagger/ route works correctly."""
         response = client.get("/swagger/")
-        # Should either redirect to docs or return the swagger UI
-        assert response.status_code in [200, 302, 303, 301]
+        assert response.status_code == 200
+
+        # Should contain Swagger UI HTML
+        html_content = response.get_data(as_text=True)
+        assert "swagger-ui" in html_content.lower()
+        assert "Outlan IPAM API" in html_content
 
 
 class TestSwaggerValidation:

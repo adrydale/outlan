@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, redirect
 
 from .blueprints.api_routes import api_bp
 from .blueprints.audit_routes import audit_bp
@@ -58,5 +58,13 @@ def create_app():
     app.register_blueprint(api_bp)
     app.register_blueprint(segment_bp)
     app.register_blueprint(import_export_bp)
+
+    # Add additional routes for Swagger documentation
+    @app.route("/docs")
+    @app.route("/api/")
+    @app.route("/api/swagger")
+    def swagger_redirects():
+        """Redirect alternative paths to Swagger documentation"""
+        return redirect("/swagger/")
 
     return app
