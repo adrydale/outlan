@@ -104,6 +104,7 @@ Full REST API with comprehensive CRUD operations and filtering capabilities. Int
 
 ## Development
 
+### Local Development
 ```bash
 # Clone and setup
 git clone <repo-url>
@@ -120,12 +121,29 @@ pytest
 pre-commit run --all-files
 ```
 
+### Development Workflow
+
+**Branch Strategy:**
+- `main` - Stable releases only
+- `develop` - Active development branch
+
+**Contributing:**
+1. Create feature branch from `develop`
+2. Make changes and test locally
+3. Submit PR to `develop` branch
+4. After testing, `develop` is merged to `main` for release
+
+**Image Building:**
+- Push to `develop` → `ghcr.io/adrydale/outlan:develop`
+- Push to `main` → `ghcr.io/adrydale/outlan:latest`
+- Git tag `v*` → `ghcr.io/adrydale/outlan:v0.2.1` + GitHub release
+
 ## Docker Images
 
 Available tags from `ghcr.io/adrydale/outlan`:
-- `latest` - Latest stable release
-- `develop` - Development builds
-- `v0.2.1` - Specific versions
+- `latest` - Latest stable release from main branch
+- `develop` - Development builds from develop branch  
+- `v0.2.1` - Specific version tags
 
 ## License
 
