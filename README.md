@@ -6,7 +6,7 @@
 
 A minimal IP Address Management (IPAM) system for small networks and labs (such a homelab). Simple web interface for network documentation with blocks, subnets, VLAN assignments, audit logging, and data import/export.
 
-**Current Version**: 0.2.0
+**Current Version**: 0.2.1
 
 ## Features
 
@@ -125,7 +125,7 @@ pre-commit run --all-files
 Available tags from `ghcr.io/adrydale/outlan`:
 - `latest` - Latest stable release
 - `develop` - Development builds
-- `v0.2.0` - Specific versions
+- `v0.2.1` - Specific versions
 
 ## License
 
