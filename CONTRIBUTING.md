@@ -2,12 +2,25 @@
 
 Thank you for considering contributing!
 
+## Development Workflow
+
+This project follows Git Flow branching strategy:
+- `main` - Stable releases only
+- `develop` - Active development branch
+- Feature branches - Individual features/fixes
+
 ## How to Contribute
 
-- Fork the repository and create your branch from `main`.
-- Write clear, concise commit messages.
-- Ensure your code passes all tests and lints (see below).
-- Submit a pull request with a clear description of your changes.
+1. Fork the repository and create your feature branch from `develop`:
+   ```bash
+   git checkout develop
+   git checkout -b feature/your-feature-name
+   ```
+2. Make your changes and write clear, concise commit messages.
+3. Ensure your code passes all tests and lints (see below).
+4. Push your feature branch and submit a pull request to `develop`.
+5. After review and testing, changes will be merged to `develop`.
+6. Stable releases are periodically merged from `develop` to `main`.
 
 ## Code Style
 
