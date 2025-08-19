@@ -128,10 +128,12 @@ pre-commit run --all-files
 - `develop` - Active development branch
 
 **Contributing:**
-1. Create feature branch from `develop`
-2. Make changes and test locally
-3. Submit PR to `develop` branch
-4. After testing, `develop` is merged to `main` for release
+1. Fork the repository
+2. Create feature branch from `develop` 
+3. Make changes and test locally
+4. Submit PR to `develop` branch
+5. After review, features are merged to `develop`
+6. Stable releases are merged from `develop` to `main`
 
 **Image Building:**
 - Push to `develop` → `ghcr.io/adrydale/outlan:develop`
