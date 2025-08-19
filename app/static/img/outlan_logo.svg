@@ -1,8 +1,8 @@
 <svg class="logo-icon" viewBox="38 78 144 128" width="27" height="26" xmlns="http://www.w3.org/2000/svg">
   <title>Outlan Logo</title>
   <style>
-    .box  { fill: #000; stroke: currentColor; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
-    .wire { fill: #000; stroke: currentColor; stroke-width: 8; stroke-linecap: butt;  stroke-linejoin: round; }
+    .box { fill: none; stroke: #000; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+    .wire { fill: none; stroke: #000; stroke-width: 8; stroke-linecap: butt; stroke-linejoin: round; }
     @media (prefers-color-scheme: dark) {
       .box { stroke: #fff; }
       .wire { stroke: #fff; }
