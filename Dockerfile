@@ -24,7 +24,7 @@ USER outlan
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/docker_health_check || exit 1
+  CMD wget -q -O - http://127.0.0.1:5000/docker_health_check | grep -q '^OK$' || exit 1
 
 EXPOSE 5000
 CMD ["./entrypoint.sh"]
